@@ -246,6 +246,21 @@ export const MORE_BUILDS = [
 
 export const ACHIEVEMENTS = {
   featured: {
+    id: "secleaf-ctf-2026",
+    title: "2nd Place · SecLeaf Q4 Operations CTF 2026",
+    awarder: "SecLeaf Operations",
+    date: "31 Oct – 1 Nov 2026",
+    rank: "2ND",
+    project: "Merp Era",
+    score: "7,407 pts",
+    duration: "24-Hour International CTF",
+    description: "Secured 2nd place at the SecLeaf Q4 Operations CTF 2026 with Team Merp Era, earning 7,407 points in an intensive 24-hour cybersecurity competition. A rewarding experience built on technical problem-solving, teamwork, persistence, and practical cybersecurity challenges.",
+    team: ["Saugat Rauniyar", "Prem Gopal Soni", "Snehil Pandey"],
+    resultsImage: "./assets/achievements/secleaf-q4-results.jpg",
+    certificateImage: "./assets/achievements/secleaf-q4-certificate.png",
+    proofUrl: "https://lnkd.in/p/gqNaKX9i"
+  },
+  previousFeatured: {
     id: "hackafest-2026",
     title: "3rd Place · HackaFest 2026",
     awarder: "Biratnagar International College",
@@ -262,6 +277,17 @@ export const ACHIEVEMENTS = {
     {
       name: "Awards & Hackathons",
       items: [
+        {
+          title: "2nd Place · SecLeaf Q4 Operations CTF 2026",
+          organization: "SecLeaf",
+          date: "Nov 2026",
+          context: "Team Merp Era · 7,407 Points · 24-Hour International CTF",
+          detail: "Runner-up finish in an intensive 24-hour global offensive & defensive security CTF solving reverse engineering, web security, cryptography, and forensics.",
+          proofType: "Official Results & Announcement",
+          proofLink: "https://lnkd.in/p/gqNaKX9i",
+          resultsImage: "./assets/achievements/secleaf-q4-results.jpg",
+          certificateImage: "./assets/achievements/secleaf-q4-certificate.png"
+        },
         {
           title: "3rd Place · HackaFest 2026",
           organization: "Biratnagar International College",

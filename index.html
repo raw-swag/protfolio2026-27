@@ -29,6 +29,19 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
+  <!-- Global Scroll Reading Progress Indicator -->
+  <div class="scroll-progress-track" aria-hidden="true">
+    <div class="scroll-progress-thumb" id="scrollProgressThumb"></div>
+  </div>
+
+  <!-- Accessible Scroll To Top Control -->
+  <button type="button" class="scroll-to-top-btn" id="scrollToTopBtn" aria-label="Scroll back to top of page" title="Return to top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="18 15 12 9 6 15"></polyline>
+    </svg>
+    <span class="sr-only">Back to Top</span>
+  </button>
+
   <!-- ==========================================================================
        NAVIGATION BAR
        ========================================================================== -->
@@ -317,19 +330,19 @@
         </article>
       </div>
 
-      <!-- IMPOSTR Compact Interactive Showcase (120vh on desktop, static list on mobile) -->
-      <div class="impostr-showcase" data-r>
+      <!-- IMPOSTR Interactive Telemetry & Forensics Architecture Showcase -->
+      <div class="impostr-showcase" data-r id="impostr-demo-section">
         <div class="impostr-header">
           <div>
             <span class="tag">Interactive Telemetry Pipeline</span>
             <h3>IMPOSTR FORENSICS IN ACTION</h3>
           </div>
           <div class="mono" style="font-size:13px; color:var(--mute)">
-            <span id="stageCounter">01 / 04</span> &nbsp;—&nbsp; <span id="stageName" style="color:var(--ink)">Target Identification</span>
+            <span id="stageCounter">01 / 04</span> &nbsp;—&nbsp; <span id="stageName" style="color:var(--ink)">01 · Target Ingestion</span>
           </div>
         </div>
 
-        <!-- Desktop Compact Scroll Stage -->
+        <!-- Desktop Interactive Scroll Stage -->
         <div class="impostr-scroll-wrapper">
           <div class="impostr-sticky-frame">
             <div class="interactive-window">
@@ -338,68 +351,206 @@
                 <div class="window-dot"></div>
                 <div class="window-dot"></div>
                 <span class="window-url-pill">impostr-virid.vercel.app</span>
+                <div class="window-actions-right">
+                  <a class="btn sm solid demo-pill-btn" href="https://impostr-virid.vercel.app/" target="_blank" rel="noopener noreferrer">
+                    Try Impostr Live ↗
+                  </a>
+                </div>
               </div>
 
               <div class="window-content">
-                <div class="simulation-note mono" style="font-size:11px; color:var(--mute); margin-bottom:8px;">
-                  * Illustrative workflow: simulated input &amp; heuristic pipeline evaluation
-                </div>
-                <div class="url-input-simulation mono">
-                  <span>https://</span>
-                  <span id="simUrl">suspicious-link.example/secure-login</span>
+                <div class="simulation-note mono" style="font-size:11px; color:var(--mute); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                  <span>* Illustrative interactive scan sequence &amp; heuristic pipeline evaluation</span>
+                  <span class="status-live-tag"><i class="live-pulse-dot" aria-hidden="true"></i> Engine Ready</span>
                 </div>
 
+                <!-- Interactive URL Bar with Test Switcher -->
+                <div class="url-input-simulation mono">
+                  <div class="url-text-wrap">
+                    <span class="url-protocol">https://</span>
+                    <span id="simUrl">suspicious-banking-alert.example/auth-verify</span>
+                  </div>
+                  <div class="url-test-triggers">
+                    <button type="button" class="sample-target-btn active" data-sample="suspicious-banking-alert.example/auth-verify">Sample A</button>
+                    <button type="button" class="sample-target-btn" data-sample="legitimate-corporate-portal.com">Sample B</button>
+                  </div>
+                </div>
+
+                <!-- Step Tabs / Flow Connector Bar -->
+                <div class="forensic-flow-bar" aria-hidden="true">
+                  <div class="flow-line-back">
+                    <div class="flow-line-fill" id="flowLineFill"></div>
+                  </div>
+                  <div class="flow-nodes-row">
+                    <button type="button" class="flow-step-node active" data-step-nav="0" aria-label="Step 01: Target Ingestion">
+                      <span class="node-num">01</span>
+                      <span class="node-lbl">Ingestion</span>
+                    </button>
+                    <button type="button" class="flow-step-node" data-step-nav="1" aria-label="Step 02: Telemetry Analysis">
+                      <span class="node-num">02</span>
+                      <span class="node-lbl">Telemetry</span>
+                    </button>
+                    <button type="button" class="flow-step-node" data-step-nav="2" aria-label="Step 03: Threat Feeds">
+                      <span class="node-num">03</span>
+                      <span class="node-lbl">Correlation</span>
+                    </button>
+                    <button type="button" class="flow-step-node" data-step-nav="3" aria-label="Step 04: Verdict">
+                      <span class="node-num">04</span>
+                      <span class="node-lbl">Verdict</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Dynamic Forensic Stage Panels Grid -->
                 <div class="stage-panels-grid">
                   <div class="stage-panel active" data-stage="0">
-                    <h4>01 · Target Ingestion</h4>
+                    <div class="stage-panel-head">
+                      <h4>01 · Target Ingestion &amp; Lexical Inspection</h4>
+                      <span class="badge-stage">Phase 1</span>
+                    </div>
+                    <p class="stage-desc">
+                      Punycode decoding, Shannon entropy calculation on domain tokens, and protocol-level normalization.
+                    </p>
                     <div class="chips-list">
                       <span>URL Normalizer</span>
-                      <span>Lexical Entropy</span>
-                      <span>Domain Tokenizer</span>
+                      <span>Shannon Entropy: 4.82</span>
+                      <span>Homoglyph Check: Flagged</span>
+                      <span>FastAPI Pipeline</span>
                     </div>
                   </div>
 
                   <div class="stage-panel" data-stage="1">
-                    <h4>02 · Telemetry &amp; Infrastructure</h4>
+                    <div class="stage-panel-head">
+                      <h4>02 · Infrastructure &amp; Live Telemetry</h4>
+                      <span class="badge-stage">Phase 2</span>
+                    </div>
+                    <p class="stage-desc">
+                      Parallel async queries to crt.sh certificate transparency logs, WHOIS age verification, and authoritative DNS records.
+                    </p>
                     <div class="chips-list">
-                      <span>DNS Lookups</span>
-                      <span>WHOIS Registrar</span>
-                      <span>crt.sh SSL Logs</span>
+                      <span>DNS A/MX/NS Query: 1.4s</span>
+                      <span>Domain Age: 6 Days Old</span>
+                      <span>Issuer: Let's Encrypt Free Tier</span>
+                      <span>Autonomous Worker</span>
                     </div>
                   </div>
 
                   <div class="stage-panel" data-stage="2">
-                    <h4>03 · Feeds &amp; NLP Scanner</h4>
+                    <div class="stage-panel-head">
+                      <h4>03 · Threat Feeds &amp; NLP Heuristics</h4>
+                      <span class="badge-stage">Phase 3</span>
+                    </div>
+                    <p class="stage-desc">
+                      Cross-checks against real-time threat intelligence feeds and NLP scanner looking for credential-harvesting phrasing.
+                    </p>
                     <div class="chips-list">
-                      <span>URLhaus Feed</span>
-                      <span>OpenPhish</span>
-                      <span>NLP Phishing Heuristics</span>
+                      <span>URLhaus Dataset: Match</span>
+                      <span>OpenPhish Telemetry</span>
+                      <span>NLP Urgency Pattern: 94%</span>
+                      <span>Composite Correlator</span>
                     </div>
                   </div>
 
                   <div class="stage-panel" data-stage="3">
-                    <h4>04 · Forensics Verdict</h4>
-                    <div class="chips-list">
-                      <span style="color:var(--bronze)">Score: 88/100 (Illustrative Risk Rating)</span>
-                      <span>Relationship Graph</span>
+                    <div class="stage-panel-head">
+                      <h4>04 · Forensics Verdict &amp; Relationship Graph</h4>
+                      <span class="badge-stage badge-danger">High Risk</span>
+                    </div>
+
+                    <!-- Security Score Ring & Graph Summary -->
+                    <div class="verdict-display-layout">
+                      <div class="score-ring-card">
+                        <div class="score-ring-wrap">
+                          <svg viewBox="0 0 100 100" class="score-ring-svg">
+                            <circle class="score-ring-bg" cx="50" cy="50" r="42" />
+                            <circle class="score-ring-fill" id="scoreRingFill" cx="50" cy="50" r="42" stroke-dasharray="263.89" stroke-dashoffset="263.89" />
+                          </svg>
+                          <div class="score-center-text">
+                            <span class="score-val" id="scoreCounter">88</span>
+                            <span class="score-denom">/100</span>
+                          </div>
+                        </div>
+                        <div class="score-meta">
+                          <span class="score-verdict-title" style="color:var(--danger)">High Risk Phishing</span>
+                          <span class="score-subtitle mono">Demo Score (Simulated Target)</span>
+                        </div>
+                      </div>
+
+                      <div class="verdict-graph-preview">
+                        <!-- Mini Interactive SVG Graph -->
+                        <svg viewBox="0 0 320 110" class="mini-rel-graph" aria-label="Forensic Entity Relationship Graph">
+                          <line class="graph-edge" x1="40" y1="55" x2="110" y2="25" />
+                          <line class="graph-edge" x1="40" y1="55" x2="110" y2="85" />
+                          <line class="graph-edge" x1="110" y1="25" x2="200" y2="40" />
+                          <line class="graph-edge" x1="110" y1="85" x2="200" y2="70" />
+                          <line class="graph-edge" x1="200" y1="55" x2="280" y2="55" />
+
+                          <!-- Nodes -->
+                          <g class="graph-node" transform="translate(40, 55)">
+                            <circle r="14" fill="var(--card-bg-elevated)" stroke="var(--acc)" stroke-width="2" />
+                            <text dy="4" text-anchor="middle" font-size="8" fill="var(--ink)" font-family="var(--m)">Target</text>
+                          </g>
+                          <g class="graph-node" transform="translate(110, 25)">
+                            <circle r="12" fill="var(--card-bg-elevated)" stroke="var(--line-strong)" stroke-width="1.5" />
+                            <text dy="3" text-anchor="middle" font-size="7" fill="var(--mute)" font-family="var(--m)">DNS</text>
+                          </g>
+                          <g class="graph-node" transform="translate(110, 85)">
+                            <circle r="12" fill="var(--card-bg-elevated)" stroke="var(--line-strong)" stroke-width="1.5" />
+                            <text dy="3" text-anchor="middle" font-size="7" fill="var(--mute)" font-family="var(--m)">SSL</text>
+                          </g>
+                          <g class="graph-node" transform="translate(200, 55)">
+                            <circle r="12" fill="var(--card-bg-elevated)" stroke="var(--line-strong)" stroke-width="1.5" />
+                            <text dy="3" text-anchor="middle" font-size="7" fill="var(--mute)" font-family="var(--m)">Feed</text>
+                          </g>
+                          <g class="graph-node" transform="translate(280, 55)">
+                            <circle r="15" fill="var(--card-bg-elevated)" stroke="var(--danger)" stroke-width="2" />
+                            <text dy="4" text-anchor="middle" font-size="8" fill="var(--danger)" font-weight="700" font-family="var(--m)">Threat</text>
+                          </g>
+                        </svg>
+                        <span class="mono" style="font-size:10px; color:var(--mute); display:block; text-align:center;">Multi-Vector Entity Relationship Graph</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Footer with Try Impostr Live Button -->
+                <div class="interactive-window-footer">
+                  <div class="live-cta-callout">
+                    <div>
+                      <strong style="display:block; font-size:14px; color:var(--ink);">Experience Impostr Live</strong>
+                      <span class="mono" style="font-size:11px; color:var(--mute);">Deployed on Vercel &amp; actively processing live URLs</span>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                      <a class="btn sm solid" href="https://impostr-virid.vercel.app/" target="_blank" rel="noopener noreferrer">
+                        Try Impostr Live ↗
+                      </a>
+                      <a class="btn sm" href="https://github.com/saugat2737/Impostr" target="_blank" rel="noopener noreferrer">
+                        Source Code ↗
+                      </a>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
+            <!-- Segment Indicators -->
             <div class="stage-progress-bar">
-              <div class="progress-segment active"></div>
-              <div class="progress-segment"></div>
-              <div class="progress-segment"></div>
-              <div class="progress-segment"></div>
+              <div class="progress-segment active" data-seg="0"></div>
+              <div class="progress-segment" data-seg="1"></div>
+              <div class="progress-segment" data-seg="2"></div>
+              <div class="progress-segment" data-seg="3"></div>
             </div>
           </div>
         </div>
 
         <!-- Mobile Static Fallback (No scroll trap on mobile) -->
         <div class="mobile-impostr-fallback">
-          <span class="tag">Architecture Pipeline Stages</span>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <span class="tag" style="margin:0;">Architecture Pipeline Stages</span>
+            <a class="btn sm solid" href="https://impostr-virid.vercel.app/" target="_blank" rel="noopener noreferrer">
+              Try Live ↗
+            </a>
+          </div>
           <div class="mobile-steps-list">
             <div class="mobile-step-card">
               <strong style="color:var(--acc)">01 · Target Ingestion:</strong>
@@ -414,8 +565,8 @@
               <p style="margin:4px 0 0; font-size:14px; color:var(--mute)">Cross-checks against active URLhaus, PhishTank, and OpenPhish threat intelligence datasets.</p>
             </div>
             <div class="mobile-step-card">
-              <strong style="color:var(--bronze)">04 · Weighted Forensic Verdict:</strong>
-              <p style="margin:4px 0 0; font-size:14px; color:var(--mute)">Combines heuristic signals into an illustrative composite risk rating and graph (e.g. 88/100).</p>
+              <strong style="color:var(--danger)">04 · Weighted Forensic Verdict:</strong>
+              <p style="margin:4px 0 0; font-size:14px; color:var(--mute)">Combines heuristic signals into a composite risk rating (Sample demo score: 88/100) and entity graph.</p>
             </div>
           </div>
         </div>
@@ -432,7 +583,60 @@
         A verified archive of hackathon podium finishes, technical articles, and continuous certifications.
       </p>
 
-      <!-- Featured Big Card: HackaFest 2026 -->
+      <!-- Featured Big Card 1: SecLeaf Q4 Operations CTF 2026 (Silver Runner-up Treatment) -->
+      <div class="featured-award-hero silver-theme" data-r id="secleaf-achievement-card">
+        <div class="award-hero-inner">
+          <div class="award-display">
+            <div class="big-rank">2<sup>ND</sup></div>
+            <h3 style="color:var(--silver)">PLACE</h3>
+            <span class="mono" style="font-size:13px; color:var(--mute); display:block; margin-top:8px;">SECLEAF CTF 2026 · MERP ERA</span>
+          </div>
+
+          <div class="award-details">
+            <span class="badge badge-silver">Featured Achievement</span>
+            <h3 style="margin-top:12px;">SecLeaf Q4 Operations CTF 2026</h3>
+            <p style="color:var(--mute); font-size:16px;">
+              Secured 2nd place at the SecLeaf Q4 Operations CTF 2026 with Team Merp Era, earning 7,407 points in an intensive 24-hour cybersecurity competition. A rewarding experience built on technical problem-solving, teamwork, persistence, and practical cybersecurity challenges.
+            </p>
+
+            <div class="award-meta-timeline">
+              <span>Team Merp Era</span> • <span>7,407 Points</span> • <span>24-Hour International CTF</span> • <span>31 Oct – 1 Nov 2026</span>
+            </div>
+
+            <!-- Proof Thumbnails Strip -->
+            <div class="award-thumbnails-strip">
+              <figure class="award-thumb-figure primary-visual" data-open-achievement-modal="secleaf" role="button" tabindex="0" aria-label="Open SecLeaf CTF 2026 Results Poster and details modal">
+                <img src="./assets/achievements/secleaf-q4-results.jpg" alt="SecLeaf Q4 Operations CTF 2026 official winners results poster showing Team Merp Era in 2nd place" width="400" height="260" loading="lazy">
+                <figcaption class="award-thumb-caption">01 Results Poster ↗</figcaption>
+              </figure>
+
+              <figure class="award-thumb-figure" data-view-proof="./assets/achievements/secleaf-q4-certificate.png" data-proof-title="Saugat Rauniyar — SecLeaf CTF 2026 Certificate of Achievement (Merp Era - Rank 2)" role="button" tabindex="0" aria-label="View Certificate in High Resolution">
+                <img src="./assets/achievements/secleaf-q4-certificate.png" alt="Saugat Rauniyar SecLeaf CTF 2026 individual certificate of achievement" width="400" height="260" loading="lazy">
+                <figcaption class="award-thumb-caption">02 Certificate ↗</figcaption>
+              </figure>
+
+              <figure class="award-thumb-figure" data-open-achievement-modal="secleaf" role="button" tabindex="0" aria-label="Inspect Full Competition Overview">
+                <div style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--card-bg-elevated); padding:12px; text-align:center;">
+                  <span class="mono" style="font-size:18px; font-weight:700; color:var(--silver);">7,407</span>
+                  <span class="mono" style="font-size:10px; color:var(--mute);">POINTS SCORED</span>
+                </div>
+                <figcaption class="award-thumb-caption">03 Overview ↗</figcaption>
+              </figure>
+            </div>
+
+            <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+              <button type="button" class="btn sm solid" data-open-achievement-modal="secleaf">
+                Inspect Achievement ↗
+              </button>
+              <a class="btn sm outline-acc" href="https://lnkd.in/p/gqNaKX9i" target="_blank" rel="noopener noreferrer">
+                View LinkedIn Announcement ↗
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Featured Big Card 2: HackaFest 2026 -->
       <div class="featured-award-hero" data-r>
         <div class="award-hero-inner">
           <div class="award-display">
@@ -486,6 +690,19 @@
         <div class="archive-group" data-r>
           <h3>Awards &amp; Hackathons</h3>
           <div class="archive-items-list">
+            <article class="archive-card">
+              <div class="archive-card-left">
+                <h4>2nd Place · SecLeaf Q4 Operations CTF 2026</h4>
+                <span class="archive-context">SecLeaf Operations · Team Merp Era · 7,407 Points · 24-Hour International CTF</span>
+                <p style="margin:4px 0 0; font-size:14px; color:var(--mute)">Intensive international cybersecurity competition testing technical problem solving, binary exploitation, cryptography, and forensics.</p>
+              </div>
+              <div class="archive-card-right">
+                <span class="archive-date">Nov 2026</span>
+                <button type="button" class="btn sm" data-open-achievement-modal="secleaf" style="margin-right:8px;">Details ↗</button>
+                <a class="btn sm outline-acc" href="https://lnkd.in/p/gqNaKX9i" target="_blank" rel="noopener noreferrer">Announcement ↗</a>
+              </div>
+            </article>
+
             <article class="archive-card">
               <div class="archive-card-left">
                 <h4>3rd Place · HackaFest 2026</h4>
@@ -614,27 +831,27 @@
         <span class="tag">Additional Explorations</span>
         <h3 style="font-size:26px;">More Technical Builds</h3>
         <div class="more-builds-grid">
-          <div class="more-build-card">
+          <div class="more-build-card" data-r style="transition-delay:0ms">
             <h4>AI Quiz Generator</h4>
             <span class="badge-tech">AI · Academic build</span>
           </div>
-          <div class="more-build-card">
+          <div class="more-build-card" data-r style="transition-delay:70ms">
             <h4>Vehicle Number Plate Detection</h4>
             <span class="badge-tech">Computer Vision · OpenCV</span>
           </div>
-          <div class="more-build-card">
+          <div class="more-build-card" data-r style="transition-delay:140ms">
             <h4>ATM Management System</h4>
             <span class="badge-tech">Software · OOP Architecture</span>
           </div>
-          <div class="more-build-card">
+          <div class="more-build-card" data-r style="transition-delay:210ms">
             <h4>Obstacle Avoiding Robot</h4>
             <span class="badge-tech">Hardware · Microcontrollers</span>
           </div>
-          <div class="more-build-card">
+          <div class="more-build-card" data-r style="transition-delay:280ms">
             <h4>Student Portfolio Dashboard</h4>
             <span class="badge-tech">Web · Academic portal</span>
           </div>
-          <div class="more-build-card">
+          <div class="more-build-card" data-r style="transition-delay:350ms">
             <h4>Wearable SpO₂ Monitoring System</h4>
             <span class="badge-tech">Hardware · Telemetry sensor</span>
           </div>
@@ -704,19 +921,19 @@
           </p>
 
           <div class="timeline">
-            <div class="timeline-entry featured">
+            <div class="timeline-entry featured" data-r style="transition-delay:0ms">
               <h4>Siddaganga Institute of Technology</h4>
               <div class="timeline-degree">B.E. in Computer Science and Engineering</div>
               <div class="timeline-meta">2025 — 2029 · Tumakuru / Bengaluru, India · <strong>Undergraduate Degree</strong></div>
             </div>
 
-            <div class="timeline-entry">
+            <div class="timeline-entry" data-r style="transition-delay:100ms">
               <h4>Shikshadeep Higher Secondary School</h4>
               <div class="timeline-degree">Higher Secondary Education (Science Stream)</div>
               <div class="timeline-meta">2023 — 2025 · Biratnagar, Nepal · <strong>GPA: 3.46 / 4.0</strong></div>
             </div>
 
-            <div class="timeline-entry">
+            <div class="timeline-entry" data-r style="transition-delay:200ms">
               <h4>DAV Secondary School</h4>
               <div class="timeline-degree">Secondary Education Board</div>
               <div class="timeline-meta">Completed 2023 · Biratnagar, Nepal · <strong>GPA: 3.14 / 4.0</strong></div>
@@ -817,6 +1034,26 @@
       </div>
       <div class="modal-body" id="modalDynamicContent">
         <!-- Dynamically rendered by script.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       ACHIEVEMENT DETAIL MODAL (SecLeaf CTF & Honors)
+       ========================================================================== -->
+  <div class="modal-backdrop" id="achievementModal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="achievementModalTitle">
+    <div class="modal-window achievement-modal-window">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="badge badge-silver">SecLeaf CTF 2026</span>
+          <span class="mono" id="achievementModalTitle" style="font-size:13px; font-weight:600;">2nd Place · Official Operations Results</span>
+        </div>
+        <button class="modal-close-btn" id="achievementCloseBtn" type="button" aria-label="Close achievement dialog">
+          ✕
+        </button>
+      </div>
+      <div class="modal-body achievement-modal-body" id="achievementDynamicContent">
+        <!-- Rendered dynamically by script.js -->
       </div>
     </div>
   </div>

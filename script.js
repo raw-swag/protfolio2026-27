@@ -46,9 +46,30 @@ function initTheme() {
    ========================================================================== */
 function initScrollReveals() {
   if (prefersReduced || !('IntersectionObserver' in window)) {
-    document.querySelectorAll('[data-r]').forEach(el => el.classList.add('in'));
+    document.querySelectorAll('[data-r], .section-reveal-header').forEach(el => el.classList.add('in'));
     return;
   }
+
+  // Automatic subtle staggering for sibling cards in grids
+  const staggeredContainers = [
+    '.flagship-grid',
+    '.cert-cards-grid',
+    '.archive-items-list',
+    '.client-work-grid',
+    '.skills-accordion',
+    '.timeline'
+  ];
+
+  staggeredContainers.forEach(selector => {
+    document.querySelectorAll(selector).forEach(container => {
+      const items = container.querySelectorAll('[data-r]');
+      items.forEach((item, idx) => {
+        if (!item.hasAttribute('data-delay')) {
+          item.style.transitionDelay = `${Math.min(idx * 90, 450)}ms`;
+        }
+      });
+    });
+  });
 
   const observer = new IntersectionObserver((entries, obs) => {
     entries.forEach(entry => {
@@ -57,9 +78,9 @@ function initScrollReveals() {
         obs.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.1 });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 
-  document.querySelectorAll('[data-r]').forEach(el => observer.observe(el));
+  document.querySelectorAll('[data-r], .section-reveal-header').forEach(el => observer.observe(el));
 
   // Metric counter
   const counterObserver = new IntersectionObserver((entries, obs) => {
@@ -127,6 +148,13 @@ function initHeroCanvas() {
   });
   visObserver.observe(canvas);
 
+  let scrollParallaxY = 0;
+  window.addEventListener('scroll', () => {
+    if (window.scrollY < window.innerHeight * 1.5) {
+      scrollParallaxY = window.scrollY * 0.12;
+    }
+  }, { passive: true });
+
   const rings = window.innerWidth < 700 ? 9 : 14;
   const nodes = window.innerWidth < 700 ? 18 : 26;
 
@@ -137,7 +165,7 @@ function initHeroCanvas() {
 
     const isSmall = width < 700;
     const cx = width * (isSmall ? 0.5 : 0.68) + mouseX * 24;
-    const cy = height * (isSmall ? 0.28 : 0.42) + mouseY * 18;
+    const cy = height * (isSmall ? 0.28 : 0.42) + mouseY * 18 + scrollParallaxY;
     const scale = Math.min(width, height) * (isSmall ? 0.35 : 0.38);
 
     const ax = 0.9 + mouseY * 0.25;
@@ -208,7 +236,7 @@ function initHeroCanvas() {
 }
 
 /* ==========================================================================
-   4. IMPOSTR COMPACT SCROLL INTERACTION (3-4 Stages, ~120vh)
+   4. IMPOSTR COMPACT SCROLL INTERACTION & STORYTELLING
    ========================================================================== */
 function initImpostrInteraction() {
   const wrapper = document.querySelector('.impostr-scroll-wrapper');
@@ -217,18 +245,108 @@ function initImpostrInteraction() {
   const segments = document.querySelectorAll('.progress-segment');
   const stageCounter = document.getElementById('stageCounter');
   const stageName = document.getElementById('stageName');
+  const flowFill = document.getElementById('flowLineFill');
+  const flowNodes = document.querySelectorAll('.flow-step-node');
+  const scoreRing = document.getElementById('scoreRingFill');
+  const scoreCounter = document.getElementById('scoreCounter');
+  const sampleBtns = document.querySelectorAll('.sample-target-btn');
 
-  if (!wrapper || prefersReduced) return;
+  if (!wrapper) return;
 
   const STAGES = [
-    { title: "Target Identification", text: "suspicious-link.example/login" },
-    { title: "Telemetry & DNS Lookups", text: "crt.sh / DNS / WHOIS verification" },
-    { title: "Feeds Cross-Referencing", text: "URLhaus · OpenPhish · PhishTank" },
-    { title: "Forensic Scoring & Verdict", text: "Illustrative Score: 88/100 (Suspicious)" }
+    { title: "01 · Target Ingestion & Normalization", text: "Normalization & lexical entropy" },
+    { title: "02 · Infrastructure & Live Telemetry", text: "crt.sh / DNS / WHOIS verification" },
+    { title: "03 · Feed Cross-Referencing & NLP", text: "URLhaus · OpenPhish · Threat datasets" },
+    { title: "04 · Forensics Verdict & Entity Graph", text: "Illustrative Score: 88/100 (Suspicious)" }
   ];
 
-  let ticking = false;
+  let currentStage = 0;
+  let scoreAnimated = false;
 
+  function animateScoreRing(targetScore) {
+    if (!scoreRing) return;
+    const circumference = 2 * Math.PI * 42; // ~263.89
+    const offset = circumference - (targetScore / 100) * circumference;
+    scoreRing.style.strokeDashoffset = offset;
+
+    if (scoreCounter) {
+      let current = 0;
+      const duration = 800;
+      const startTime = performance.now();
+      function tick(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        scoreCounter.textContent = Math.round(targetScore * ease);
+        if (progress < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+  }
+
+  function setStage(idx, isManual) {
+    currentStage = Math.max(0, Math.min(3, idx));
+
+    if (stageCounter) stageCounter.textContent = `0${currentStage + 1} / 04`;
+    if (stageName) stageName.textContent = STAGES[currentStage].title;
+
+    panels.forEach((p, i) => {
+      p.classList.toggle('active', i === currentStage);
+    });
+
+    segments.forEach((s, i) => {
+      s.classList.toggle('active', i <= currentStage);
+    });
+
+    flowNodes.forEach((node, i) => {
+      node.classList.toggle('active', i === currentStage);
+      node.classList.toggle('completed', i < currentStage);
+    });
+
+    if (flowFill) {
+      const fillPercents = [10, 40, 70, 100];
+      flowFill.style.width = `${fillPercents[currentStage]}%`;
+    }
+
+    if (currentStage === 3 && !scoreAnimated) {
+      scoreAnimated = true;
+      animateScoreRing(88);
+    } else if (currentStage < 3) {
+      scoreAnimated = false;
+      if (scoreRing) {
+        scoreRing.style.strokeDashoffset = '263.89';
+      }
+    }
+  }
+
+  // Sample target switching buttons
+  sampleBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      sampleBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const sample = btn.dataset.sample;
+      if (simUrl) {
+        simUrl.textContent = sample;
+        simUrl.style.clipPath = 'inset(0 0 0 0)';
+      }
+      // Re-trigger stage update
+      setStage(currentStage);
+    });
+  });
+
+  // Direct click on flow step tabs
+  flowNodes.forEach(node => {
+    node.addEventListener('click', () => {
+      const targetIdx = parseInt(node.dataset.stepNav, 10);
+      setStage(targetIdx, true);
+    });
+  });
+
+  if (prefersReduced) {
+    setStage(0);
+    return;
+  }
+
+  let ticking = false;
   function updateScroll() {
     ticking = false;
     const rect = wrapper.getBoundingClientRect();
@@ -236,21 +354,14 @@ function initImpostrInteraction() {
 
     const stageIdx = Math.min(3, Math.floor(scrollProgress * 4));
 
-    if (stageCounter) stageCounter.textContent = `0${stageIdx + 1} / 04`;
-    if (stageName) stageName.textContent = STAGES[stageIdx].title;
-
     if (simUrl) {
       const typePercent = Math.min(100, Math.max(0, scrollProgress * 300));
       simUrl.style.clipPath = `inset(0 ${100 - typePercent}% 0 0)`;
     }
 
-    panels.forEach((p, idx) => {
-      p.classList.toggle('active', idx === stageIdx);
-    });
-
-    segments.forEach((s, idx) => {
-      s.classList.toggle('active', idx <= stageIdx);
-    });
+    if (stageIdx !== currentStage) {
+      setStage(stageIdx);
+    }
   }
 
   window.addEventListener('scroll', () => {
@@ -260,7 +371,7 @@ function initImpostrInteraction() {
     }
   }, { passive: true });
 
-  updateScroll();
+  setStage(0);
 }
 
 /* ==========================================================================
@@ -452,6 +563,17 @@ function initProofModal() {
     }
   });
 
+  // Support Enter and Space on elements with role="button" having data-view-proof
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      const btn = e.target.closest('[data-view-proof]');
+      if (btn && btn.tagName !== 'BUTTON') {
+        e.preventDefault();
+        openProof(btn.dataset.viewProof, btn.dataset.proofTitle || "Proof of Achievement");
+      }
+    }
+  });
+
   closeBtn.addEventListener('click', closeProof);
   modal.addEventListener('click', e => {
     if (e.target === modal) closeProof();
@@ -480,6 +602,169 @@ function initProofModal() {
 }
 
 /* ==========================================================================
+   6B. ACHIEVEMENT DETAIL MODAL (SecLeaf CTF 2026 Interactive Dialog)
+   ========================================================================== */
+function initAchievementModal() {
+  const modal = document.getElementById('achievementModal');
+  const closeBtn = document.getElementById('achievementCloseBtn');
+  const contentEl = document.getElementById('achievementDynamicContent');
+  let prevFocus = null;
+
+  if (!modal || !contentEl) return;
+
+  function renderSecLeafModal() {
+    const feat = ACHIEVEMENTS.featured;
+    contentEl.innerHTML = `
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+          <div>
+            <span class="badge badge-silver">Runner-up · Rank 2</span>
+            <h3 style="font-size:clamp(24px, 3.5vw, 36px); margin:8px 0 4px;">${feat.title}</h3>
+            <span class="mono" style="font-size:13px; color:var(--mute);">Team: <strong>${feat.project}</strong> · International Cybersecurity Competition</span>
+          </div>
+          <a class="btn sm solid" href="${feat.proofUrl}" target="_blank" rel="noopener noreferrer">
+            View LinkedIn Announcement ↗
+          </a>
+        </div>
+        <p style="color:var(--mute); font-size:15px; line-height:1.6; margin:0;">
+          ${feat.description}
+        </p>
+      </div>
+
+      <div class="achievement-modal-hero">
+        <img src="${feat.resultsImage}" alt="SecLeaf Q4 Operations CTF 2026 official winners results poster" loading="lazy">
+        <div class="achievement-modal-hero-cap">
+          <span>Official SecLeaf Q4 Operations Results Poster — Merp Era (Rank 2)</span>
+          <button type="button" class="btn sm outline-acc" data-view-proof="${feat.resultsImage}" data-proof-title="SecLeaf Q4 Operations CTF 2026 Winners Poster">
+            Enlarge Poster ↗
+          </button>
+        </div>
+      </div>
+
+      <div class="achievement-modal-grid">
+        <div class="achievement-modal-section">
+          <h4 style="font-family:var(--m); font-size:12px; text-transform:uppercase; color:var(--mute); letter-spacing:0.06em; margin-bottom:12px;">
+            Competition Metrics &amp; Team
+          </h4>
+          <div class="achievement-stats-list">
+            <div class="achievement-stat-item">
+              <span class="achievement-stat-label">Final Score</span>
+              <span class="achievement-stat-val" style="color:var(--silver);">${feat.score}</span>
+            </div>
+            <div class="achievement-stat-item">
+              <span class="achievement-stat-label">Duration</span>
+              <span class="achievement-stat-val">${feat.duration}</span>
+            </div>
+            <div class="achievement-stat-item">
+              <span class="achievement-stat-label">Dates</span>
+              <span class="achievement-stat-val">${feat.date}</span>
+            </div>
+            <div class="achievement-stat-item">
+              <span class="achievement-stat-label">Placement</span>
+              <span class="achievement-stat-val">2nd Place (Podium)</span>
+            </div>
+          </div>
+
+          <h4 style="font-family:var(--m); font-size:12px; text-transform:uppercase; color:var(--mute); letter-spacing:0.06em; margin:20px 0 8px;">
+            Team Merp Era Members
+          </h4>
+          <ul style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px;">
+            ${feat.team.map(m => `
+              <li style="display:flex; align-items:center; gap:8px; font-size:14px; color:var(--ink);">
+                <span class="live-pulse-dot" style="background:var(--silver); box-shadow:none;" aria-hidden="true"></span>
+                <span>${m}</span>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+
+        <div class="achievement-cert-preview-card">
+          <h4 style="font-family:var(--m); font-size:12px; text-transform:uppercase; color:var(--mute); letter-spacing:0.06em; margin:0;">
+            Individual Certificate
+          </h4>
+          <div class="achievement-cert-preview-thumb" data-view-proof="${feat.certificateImage}" data-proof-title="Saugat Rauniyar — SecLeaf CTF 2026 Certificate (Rank 2)" role="button" tabindex="0" aria-label="Open Certificate in Large View">
+            <img src="${feat.certificateImage}" alt="SecLeaf Q4 Operations CTF Certificate of Achievement preview" loading="lazy">
+            <div class="achievement-cert-zoom-btn">
+              <span>Click to Enlarge ↗</span>
+            </div>
+          </div>
+          <button type="button" class="btn sm outline-acc" data-view-proof="${feat.certificateImage}" data-proof-title="Saugat Rauniyar — SecLeaf CTF 2026 Certificate (Rank 2)">
+            Open Certificate in Large View ↗
+          </button>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; padding-top:16px; border-top:1px solid var(--line);">
+        <span class="mono" style="font-size:11px; color:var(--mute);">SecLeaf Q4 Operations CTF 2026 · Verified Achievement Archive</span>
+        <a class="btn sm solid" href="${feat.proofUrl}" target="_blank" rel="noopener noreferrer">
+          View LinkedIn Announcement ↗
+        </a>
+      </div>
+    `;
+  }
+
+  function openAchievementModal() {
+    prevFocus = document.activeElement;
+    renderSecLeafModal();
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('lock');
+    setTimeout(() => closeBtn.focus(), 50);
+  }
+
+  function closeAchievementModal() {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('lock');
+    if (prevFocus) prevFocus.focus();
+  }
+
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('[data-open-achievement-modal]');
+    if (btn) {
+      e.preventDefault();
+      openAchievementModal();
+    }
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      const btn = e.target.closest('[data-open-achievement-modal]');
+      if (btn && btn.tagName !== 'BUTTON') {
+        e.preventDefault();
+        openAchievementModal();
+      }
+    }
+  });
+
+  closeBtn.addEventListener('click', closeAchievementModal);
+  modal.addEventListener('click', e => {
+    if (e.target === modal) closeAchievementModal();
+  });
+
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && modal.classList.contains('open')) closeAchievementModal();
+  });
+
+  // Focus trap
+  modal.addEventListener('keydown', e => {
+    if (e.key !== 'Tab') return;
+    const focusables = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (!focusables.length) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  });
+}
+
+/* ==========================================================================
    7. SKILLS ACCORDION (Semantic buttons with ARIA states)
    ========================================================================== */
 function initSkillsAccordion() {
@@ -487,7 +772,7 @@ function initSkillsAccordion() {
   if (!container) return;
 
   container.innerHTML = SKILLS_DATA.map((group, idx) => `
-    <div class="accordion-group ${idx === 0 ? 'is-open' : ''}">
+    <div class="accordion-group ${idx === 0 ? 'is-open' : ''}" data-r style="transition-delay:${idx * 80}ms">
       <button type="button" class="accordion-trigger" 
               id="skill-btn-${group.id}" 
               aria-expanded="${idx === 0 ? 'true' : 'false'}" 
@@ -529,6 +814,18 @@ function initSkillsAccordion() {
       btn.setAttribute('aria-expanded', String(!isOpen));
     });
   });
+
+  if (!prefersReduced && 'IntersectionObserver' in window) {
+    const skillsObserver = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    container.querySelectorAll('.accordion-group[data-r]').forEach(item => skillsObserver.observe(item));
+  }
 }
 
 /* ==========================================================================
@@ -541,8 +838,8 @@ function initCertificatesRenderer() {
   const certCategory = ACHIEVEMENTS.categories.find(c => c.name === "Certifications & Learning");
   if (!certCategory || !certCategory.items) return;
 
-  container.innerHTML = certCategory.items.map(cert => `
-    <article class="cert-card">
+  container.innerHTML = certCategory.items.map((cert, idx) => `
+    <article class="cert-card" data-r style="transition-delay:${Math.min(idx * 70, 420)}ms">
       <div class="cert-card-header">
         <div>
           <h4>${cert.title}</h4>
@@ -571,6 +868,19 @@ function initCertificatesRenderer() {
       </div>
     </article>
   `).join('');
+
+  // Re-observe dynamically rendered cert cards
+  if (!prefersReduced && 'IntersectionObserver' in window) {
+    const certObserver = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    container.querySelectorAll('.cert-card[data-r]').forEach(card => certObserver.observe(card));
+  }
 }
 
 /* ==========================================================================
@@ -742,10 +1052,15 @@ Core: PostgreSQL partial unique index concurrency locks, server-authoritative tu
     clients: () => `Capital Marketing: <a href="https://capitalmarketingnp.com" target="_blank" rel="noopener">capitalmarketingnp.com ↗</a>
 ShubhLabh Construction: <a href="https://shubhlabhconstruction.com.np/" target="_blank" rel="noopener">shubhlabhconstruction.com.np ↗</a>`,
 
-    achievements: () => `<span style="color:var(--bronze)">3rd Place · HackaFest 2026</span>
+    achievements: () => `<span style="color:var(--silver)">2nd Place · SecLeaf Q4 Operations CTF 2026</span>
+Team: Merp Era (Saugat Rauniyar, Prem Gopal Soni, Snehil Pandey)
+Score: 7,407 points · 24-Hour International CTF (31 Oct – 1 Nov 2026)
+Official Post: <a href="https://lnkd.in/p/gqNaKX9i" target="_blank" rel="noopener">lnkd.in/p/gqNaKX9i ↗</a>
+
+<span style="color:var(--bronze)">3rd Place · HackaFest 2026</span>
 Awarded by: Biratnagar International College
-Project: IMPOSTR (Team Incognitus)
-Verified certificate available in the achievements archive.`,
+Project: IMPOSTR (Team CyberDNA)
+Verified certificates and results available in the achievements archive.`,
 
     writing: () => `Medium Article: "From URL to Verdict: Constructing a Multi-Vector Web Threat Forensics Engine"
 Read: <a href="https://medium.com/@saugat.rauniyar.work/from-url-to-verdict-constructing-a-multi-vector-web-threat-forensics-engine-c9eb4722d352" target="_blank" rel="noopener">medium.com/@saugat.rauniyar.work/... ↗</a>`,
@@ -960,16 +1275,91 @@ function initNavSpy() {
 }
 
 /* ==========================================================================
+   14. GLOBAL SCROLL PROGRESS & SCROLL-TO-TOP CONTROLLER
+   ========================================================================== */
+function initScrollProgressAndBackToTop() {
+  const thumb = document.getElementById('scrollProgressThumb');
+  const topBtn = document.getElementById('scrollToTopBtn');
+  const nav = document.querySelector('nav');
+
+  if (!thumb && !topBtn && !nav) return;
+
+  let ticking = false;
+
+  function update() {
+    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = docHeight > 0 ? Math.min(100, Math.max(0, (scrollY / docHeight) * 100)) : 0;
+
+    if (thumb) {
+      if (window.innerWidth <= 768) {
+        thumb.style.width = `${progress}%`;
+        thumb.style.height = '100%';
+      } else {
+        thumb.style.height = `${progress}%`;
+        thumb.style.width = '100%';
+      }
+    }
+
+    if (topBtn) {
+      if (scrollY > 350) {
+        topBtn.classList.add('visible');
+      } else {
+        topBtn.classList.remove('visible');
+      }
+    }
+
+    if (nav) {
+      if (scrollY > 40) {
+        nav.classList.add('nav-scrolled');
+      } else {
+        nav.classList.remove('nav-scrolled');
+      }
+    }
+
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(update);
+      ticking = true;
+    }
+  }, { passive: true });
+
+  window.addEventListener('resize', () => {
+    if (!ticking) {
+      window.requestAnimationFrame(update);
+      ticking = true;
+    }
+  }, { passive: true });
+
+  if (topBtn) {
+    topBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  }
+
+  // Initial call
+  update();
+}
+
+/* ==========================================================================
    INITIALIZATION
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initNavSpy();
+  initScrollProgressAndBackToTop();
   initScrollReveals();
   initHeroCanvas();
   initImpostrInteraction();
   initCaseStudyModal();
   initProofModal();
+  initAchievementModal();
   initSkillsAccordion();
   initCertificatesRenderer();
   initMobileNav();
