@@ -227,7 +227,7 @@ function generateDeterministicAnswer(query, mode, kb) {
       reply: `**Saugat Rauniyar** is currently pursuing his **B.E. in Computer Science and Engineering (2025—2029)** at **Siddaganga Institute of Technology (SIT)** in Bengaluru/Tumakuru, maintaining a **CGPA of 9.5 / 10.0**.\n\nHe specializes in building practical software at the crossroads of **AI, cybersecurity, and full-stack systems**, with hands-on contributions across asynchronous telemetry pipelines, relational databases, and secure web applications.`,
       sources: [
         { label: "Skills & Education", url: "#skills-education" },
-        { label: "Official Résumé", url: "./assets/final-saugat-resume.pdf" }
+        { label: "Official Résumé", url: "./assets/saugat-resume.pdf" }
       ],
       mode: 'standard',
       poweredBy: 'verified-knowledge-base'
@@ -316,7 +316,7 @@ function analyzeJobDescription(jdText, kb) {
     sources: [
       { label: "IMPOSTR Case Study", url: "#/case-study/impostr" },
       { label: "DORMEX Architecture", url: "#/case-study/dormex" },
-      { label: "Official Résumé", url: "./assets/final-saugat-resume.pdf" }
+      { label: "Official Résumé", url: "./assets/saugat-resume.pdf" }
     ],
     mode: 'hiring',
     poweredBy: 'verified-knowledge-base'

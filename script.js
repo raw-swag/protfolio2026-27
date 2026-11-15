@@ -1065,7 +1065,7 @@ Verified certificates and results available in the achievements archive.`,
     writing: () => `Medium Article: "From URL to Verdict: Constructing a Multi-Vector Web Threat Forensics Engine"
 Read: <a href="https://medium.com/@saugat.rauniyar.work/from-url-to-verdict-constructing-a-multi-vector-web-threat-forensics-engine-c9eb4722d352" target="_blank" rel="noopener">medium.com/@saugat.rauniyar.work/... ↗</a>`,
 
-    resume: () => `<a href="./assets/final-saugat-resume.pdf" target="_blank" rel="noopener">[OPEN RESUME PDF ↗]</a>  <a href="./assets/final-saugat-resume.pdf" download>[DOWNLOAD RESUME]</a>`,
+    resume: () => `<a href="./assets/saugat-resume.pdf" target="_blank" rel="noopener">[OPEN RESUME PDF ↗]</a>  <a href="./assets/saugat-resume.pdf" download="Saugat_Rauniyar_Resume.pdf">[DOWNLOAD RESUME]</a>`,
 
     education: () => `Siddaganga Institute of Technology
   B.E. Computer Science and Engineering, 2025 — 2029 (Undergraduate Degree)
