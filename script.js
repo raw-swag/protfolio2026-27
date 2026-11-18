@@ -81,30 +81,6 @@ function initScrollReveals() {
   }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 
   document.querySelectorAll('[data-r], .section-reveal-header').forEach(el => observer.observe(el));
-
-  // Metric counter
-  const counterObserver = new IntersectionObserver((entries, obs) => {
-    entries.forEach(entry => {
-      if (!entry.isIntersecting) return;
-      obs.unobserve(entry.target);
-      const counterEl = entry.target.querySelector('[data-count]');
-      if (!counterEl) return;
-
-      const targetVal = parseInt(counterEl.dataset.count, 10);
-      const startTime = performance.now();
-      const duration = 1000;
-
-      function updateCounter(now) {
-        const progress = Math.min((now - startTime) / duration, 1);
-        const easeVal = 1 - Math.pow(1 - progress, 3);
-        counterEl.textContent = Math.round(targetVal * easeVal);
-        if (progress < 1) requestAnimationFrame(updateCounter);
-      }
-      requestAnimationFrame(updateCounter);
-    });
-  }, { threshold: 0.3 });
-
-  document.querySelectorAll('.metric-item').forEach(el => counterObserver.observe(el));
 }
 
 /* ==========================================================================
@@ -1111,10 +1087,6 @@ function initSignalMap() {
   // Active state controller
   function inspectDomain(domain) {
     if (!inspector) return;
-    inspector.classList.remove('fade-switch');
-    void inspector.offsetWidth; // trigger reflow for animation restart
-    inspector.classList.add('fade-switch', 'highlight');
-    setTimeout(() => inspector.classList.remove('highlight'), 300);
 
     // Update active SVG classes and dim unrelated connections
     document.querySelectorAll('.map-edge').forEach(e => {
@@ -1170,12 +1142,6 @@ function initSignalMap() {
   }
 
   function inspectCenter() {
-    if (inspector) {
-      inspector.classList.remove('fade-switch');
-      void inspector.offsetWidth;
-      inspector.classList.add('fade-switch');
-    }
-
     document.querySelectorAll('.map-edge').forEach(e => {
       e.classList.remove('active', 'dimmed');
     });
