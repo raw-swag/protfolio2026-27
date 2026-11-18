@@ -1040,8 +1040,8 @@ function initSignalMap() {
 
   // Center coords for 1000x600 viewBox
   const CX = 500;
-  const CY = 300;
-  const RADIUS = 180;
+  const CY = 295;
+  const RADIUS = 175;
 
   // Domain Node Coordinates
   const domainNodes = SIGNAL_MAP_DATA.domains.map((domain, i) => {
@@ -1052,7 +1052,8 @@ function initSignalMap() {
       ...domain,
       x,
       y,
-      angle
+      angle,
+      idx: i
     };
   });
 
@@ -1067,20 +1068,32 @@ function initSignalMap() {
     <g class="map-node-group" id="node-saugat" role="button" tabindex="0" aria-label="Center Node: Saugat Rauniyar">
       <circle class="map-node-circle" cx="${CX}" cy="${CY}" r="42" fill="var(--card-bg-elevated)" stroke="var(--ink)" stroke-width="2" />
       <circle cx="${CX}" cy="${CY}" r="34" fill="rgba(var(--acc-rgb), 0.08)" stroke="var(--line)" stroke-width="1" />
-      <text class="map-node-label" x="${CX}" y="${CY - 4}" text-anchor="middle" font-size="11">SAUGAT</text>
-      <text class="map-node-label" x="${CX}" y="${CY + 10}" text-anchor="middle" font-size="10" fill="var(--mute)">RAUNIYAR</text>
-      <text class="map-node-sublabel" x="${CX}" y="${CY + 22}" text-anchor="middle" font-size="8">CORE NODE</text>
+      <text class="map-node-label" x="${CX}" y="${CY - 5}" text-anchor="middle" font-size="11">SAUGAT</text>
+      <text class="map-node-label" x="${CX}" y="${CY + 9}" text-anchor="middle" font-size="10" fill="var(--mute)">RAUNIYAR</text>
+      <text class="map-node-sublabel" x="${CX}" y="${CY + 22}" text-anchor="middle" font-size="8.5">CORE NODE</text>
     </g>
   `;
 
-  nodesHtml += domainNodes.map(d => `
-    <g class="map-node-group" id="node-${d.id}" role="button" tabindex="0" aria-label="Engineering Domain: ${d.name}">
-      <circle class="map-node-circle" cx="${d.x}" cy="${d.y}" r="34" fill="var(--card-bg-elevated)" stroke="${d.color}" stroke-width="2" />
-      <circle cx="${d.x}" cy="${d.y}" r="4" fill="${d.color}" />
-      <text class="map-node-label" x="${d.x}" y="${d.y > CY ? d.y + 48 : d.y - 42}" text-anchor="middle">${d.name}</text>
-      <text class="map-node-sublabel" x="${d.x}" y="${d.y > CY ? d.y + 60 : d.y - 30}" text-anchor="middle">${d.short}</text>
-    </g>
-  `).join('');
+  nodesHtml += domainNodes.map(d => {
+    let titleY, subY;
+    if (d.idx === 0) {
+      // Top node (Cybersecurity) - position above circle (circle top is d.y - 34)
+      titleY = d.y - 58;
+      subY = d.y - 41;
+    } else {
+      // Bottom/side nodes - position below circle (circle bottom is d.y + 34)
+      titleY = d.y + 57;
+      subY = d.y + 75;
+    }
+    return `
+      <g class="map-node-group" id="node-${d.id}" role="button" tabindex="0" aria-label="Engineering Domain: ${d.name}">
+        <circle class="map-node-circle" cx="${d.x}" cy="${d.y}" r="34" fill="var(--card-bg-elevated)" stroke="${d.color}" stroke-width="2" />
+        <circle cx="${d.x}" cy="${d.y}" r="4" fill="${d.color}" />
+        <text class="map-node-label" x="${d.x}" y="${titleY}" text-anchor="middle">${d.name}</text>
+        <text class="map-node-sublabel" x="${d.x}" y="${subY}" text-anchor="middle">${d.short}</text>
+      </g>
+    `;
+  }).join('');
 
   nodesGroup.innerHTML = nodesHtml;
 
@@ -1123,18 +1136,18 @@ function initSignalMap() {
     if (inspectorPills) {
       inspectorPills.innerHTML = domain.connections.map(c => `
         <a class="inspector-pill-link" href="#${c.targetId}">
-          <div>
+          <div class="pill-meta-col">
             <strong>${c.name}</strong>
-            <small style="display:block; color:var(--mute); font-size:11px;">${c.summary}</small>
+            <small>${c.summary}</small>
           </div>
-          <span style="color:var(--acc); font-size:12px;">Navigate ↗</span>
+          <span class="pill-nav-btn">Navigate ↗</span>
         </a>
       `).join('');
     }
 
     if (inspectorAction) {
       inspectorAction.innerHTML = `
-        <a class="btn sm solid" href="#${domain.connections[0]?.targetId || 'projects'}">
+        <a class="btn sm solid inspector-cta-btn" href="#${domain.connections[0]?.targetId || 'projects'}">
           Explore Related System (${domain.connections[0]?.name}) ↗
         </a>
       `;
@@ -1177,7 +1190,7 @@ function initSignalMap() {
 
     if (inspectorAction) {
       inspectorAction.innerHTML = `
-        <a class="btn sm outline-acc" href="#projects">
+        <a class="btn sm outline-acc inspector-cta-btn" href="#projects">
           Inspect Flagship Projects ↓
         </a>
       `;
