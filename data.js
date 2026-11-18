@@ -318,9 +318,34 @@ export const ACHIEVEMENTS = {
       // Verified credentials & available course certificates
       items: [
         {
+          id: "amd-rocm",
+          title: "AMD ROCm Certified Associate",
+          formalTitle: "Core AMD ROCm™ Software Application Development — Certified Associate",
+          organization: "AMD AI Academy",
+          date: "November 2026",
+          category: "Cloud & GPU Computing",
+          featured: true,
+          summary: "Earned the AMD ROCm Certified Associate certification through AMD AI Academy, validating foundational knowledge of the ROCm software ecosystem, GPU computing, AI frameworks, and performance-oriented application development.",
+          curriculum: [
+            "ROCm setup & GPU architecture fundamentals",
+            "AMD Instinct architecture",
+            "ROCm libraries & AI frameworks",
+            "HIP programming & CUDA porting",
+            "Performance optimization & profiling"
+          ],
+          tags: ["ROCm", "GPU Computing", "AMD Instinct", "HIP", "AI Frameworks", "Profiling"],
+          proofType: "Official Certification Credential",
+          proofLink: "https://lnkd.in/gBAUXKd7",
+          linkedInUrl: "https://lnkd.in/p/gHMZ7b94",
+          officialUrl: "https://developer.amd.com/rocm-certified/",
+          isFile: false
+        },
+        {
+          id: "scaler-os",
           title: "Operating System Course: Learn Fundamentals of Operating System",
           organization: "Scaler Topics",
           date: "September 2026",
+          category: "Software Engineering & Other Learning",
           summary: "Core operating system concepts: process scheduling, synchronization primitives, memory management, virtual memory paging, and deadlock mitigation.",
           proofType: "Certificate of Completion",
           proofLink: "./assets/os_certificate.png",
@@ -328,72 +353,88 @@ export const ACHIEVEMENTS = {
           isImage: true
         },
         {
+          id: "anthropic-claude",
           title: "Claude Code in Action",
           organization: "Anthropic",
           date: "March 2026",
+          category: "AI & Machine Learning",
           summary: "Agentic coding environments, tool-use orchestration, terminal-based developer loops, and model context protocol workflows.",
           proofType: "Certificate of Completion",
           proofLink: "./assets/antropic_cer.pdf",
           isFile: true
         },
         {
+          id: "infosys-prompt",
           title: "Prompt Engineering",
           organization: "Infosys Springboard",
           date: "March 2026",
+          category: "AI & Machine Learning",
           summary: "Structured prompt methodologies, context distillation, few-shot conditioning, and LLM application orchestration workflows.",
           proofType: "Certificate of Completion",
           proofLink: "./assets/prompt_engg.pdf",
           isFile: true
         },
         {
+          id: "nvidia-jetson",
           title: "Getting Started with AI on Jetson Nano",
           organization: "NVIDIA Deep Learning Institute",
           date: "December 2025",
+          category: "AI & Machine Learning",
           summary: "Edge deep learning deployment, computer vision pipelines, image classification, and real-time TensorRT camera inference.",
           proofType: "Certificate of Competency",
           proofLink: "./assets/NVIDIA-JETSON-NANO-CERT.pdf",
           isFile: true
         },
         {
+          id: "nasscom-genai",
           title: "Generative AI Literacy",
           organization: "FutureSkills Prime / NASSCOM",
           date: "December 2025",
+          category: "AI & Machine Learning",
           summary: "Foundational generative model capabilities, multi-modal applications, prompt design principles, and responsible AI governance.",
           proofType: "Certificate of Completion",
           proofLink: "./assets/Genrative_AI_Literacy.pdf",
           isFile: true
         },
         {
+          id: "infosys-ai-all",
           title: "Artificial Intelligence for All",
           organization: "Infosys Springboard",
           date: "December 2025",
+          category: "AI & Machine Learning",
           summary: "Comprehensive survey of artificial intelligence principles, computer vision, natural language processing, and practical industry applications.",
           proofType: "Certificate of Completion",
           proofLink: "./assets/AI_FOR_ALL.pdf",
           isFile: true
         },
         {
+          id: "infosys-neural-nlp",
           title: "Neural Network & NLP Implementation",
           organization: "Infosys Springboard",
           date: "December 2025",
+          category: "AI & Machine Learning",
           summary: "Dense neural architectures, backpropagation mathematics, text sequence vectorization, tokenization, and language modeling.",
           proofType: "Certificate of Completion",
           proofLink: "./assets/NEURAL-NLP-CER.pdf",
           isFile: true
         },
         {
+          id: "infosys-aws",
           title: "AWS Developer Associate: Optimizing AWS",
           organization: "Infosys Springboard",
           date: "December 2025",
+          category: "Cloud & GPU Computing",
           summary: "Curriculum course covering cloud deployment optimization, compute provisioning, and serverless architectures on AWS.",
           proofType: "Course Completion Certificate",
           proofLink: "./assets/AWS-CER.pdf",
           isFile: true
         },
         {
+          id: "sit-brewathon",
           title: "Brewathon",
           organization: "AI Brewery · Siddaganga Institute of Technology",
           date: "December 2025",
+          category: "Software Engineering & Other Learning",
           summary: "Competitive campus hackathon sprint organized by AI Brewery at Siddaganga Institute of Technology, focusing on rapid prototyping, system architecture under pressure, and live demonstration.",
           proofType: "Certificate of Participation",
           proofLink: "./assets/hackthon-certificate.pdf",
@@ -403,6 +444,190 @@ export const ACHIEVEMENTS = {
     }
   ]
 };
+
+export const SIGNAL_MAP_DATA = {
+  center: {
+    id: "saugat",
+    label: "SAUGAT RAUNIYAR",
+    role: "Computer Science & Engineering · SIT",
+    summary: "Systems, Cybersecurity, AI & GPU Computing"
+  },
+  domains: [
+    {
+      id: "domain-cybersec",
+      name: "CYBERSECURITY",
+      short: "Threat Intelligence & Forensics",
+      color: "var(--acc)",
+      description: "Offensive & defensive security, OSINT telemetry, domain/URL forensics, and CTF competitions.",
+      connections: [
+        {
+          name: "IMPOSTR Platform",
+          type: "project",
+          targetId: "impostr",
+          summary: "AI-assisted domain & URL threat forensics engine aggregating multi-vector telemetry."
+        },
+        {
+          name: "SecLeaf CTF (2nd Place)",
+          type: "achievement",
+          targetId: "secleaf-achievement-card",
+          summary: "Team Merp Era · 7,407 points in 24-hr international offensive/defensive competition."
+        },
+        {
+          name: "URL Forensics Paper",
+          type: "writing",
+          targetId: "writing",
+          summary: "11-min technical walkthrough of heuristic verdicts & threat aggregation pipeline."
+        }
+      ]
+    },
+    {
+      id: "domain-ai",
+      name: "ARTIFICIAL INTELLIGENCE",
+      short: "Vision, NLP & Human Oversight",
+      color: "var(--bronze)",
+      description: "Human-in-the-loop reviewability, computer vision pipelines, NLP heuristic scoring, and multimodal models.",
+      connections: [
+        {
+          name: "LUCERNA Workstation",
+          type: "project",
+          targetId: "lucerna",
+          summary: "Radiological imaging review workstation centering on auditable human-in-the-loop oversight."
+        },
+        {
+          name: "IMPOSTR NLP Scanner",
+          type: "project",
+          targetId: "impostr",
+          summary: "Phishing keyword heuristics and urgency token scoring engine."
+        },
+        {
+          name: "Edge AI & Vision",
+          type: "credential",
+          targetId: "cert-nvidia-jetson",
+          summary: "NVIDIA Jetson Nano edge AI competency & TensorRT camera pipelines."
+        }
+      ]
+    },
+    {
+      id: "domain-gpu",
+      name: "GPU COMPUTING",
+      short: "ROCm Ecosystem & High-Perf Systems",
+      color: "#f59e0b",
+      description: "Heterogeneous compute, AMD Instinct architecture, ROCm libraries, HIP/CUDA programming, and hardware profiling.",
+      connections: [
+        {
+          name: "AMD ROCm Associate",
+          type: "credential",
+          targetId: "cert-amd-rocm",
+          summary: "Core AMD ROCm™ Software Application Development Certified Associate (AMD AI Academy)."
+        },
+        {
+          name: "ROCm Curriculum Flow",
+          type: "interactive",
+          targetId: "gpuComputeExperience",
+          summary: "Educational walkthrough: from Instinct hardware architecture to accelerated AI framework backends."
+        },
+        {
+          name: "Edge AI Competency",
+          type: "credential",
+          targetId: "cert-nvidia-jetson",
+          summary: "NVIDIA Deep Learning Institute certificate: Jetson Nano edge AI & TensorRT camera pipelines."
+        }
+      ]
+    },
+    {
+      id: "domain-fullstack",
+      name: "FULL-STACK ENGINEERING",
+      short: "Production Web Applications",
+      color: "var(--silver)",
+      description: "Modern web architecture, production client deployments, responsive editorial design, and API services.",
+      connections: [
+        {
+          name: "Capital Marketing",
+          type: "client",
+          targetId: "client-capital-marketing",
+          summary: "Production corporate merchandising platform built for regional enterprise."
+        },
+        {
+          name: "ShubhLabh Construction",
+          type: "client",
+          targetId: "client-shubhlabh",
+          summary: "Commercial civil engineering and equipment enterprise portal."
+        },
+        {
+          name: "SAUGAT.OS Interface",
+          type: "interactive",
+          targetId: "osNavBtn",
+          summary: "Accessible client-side engineering terminal and interactive portfolio."
+        }
+      ]
+    },
+    {
+      id: "domain-systems",
+      name: "SYSTEMS & INFRASTRUCTURE",
+      short: "OS Fundamentals & Relational Data",
+      color: "#10b981",
+      description: "Operating system primitives, process scheduling, transactional consistency, concurrency control, and database design.",
+      connections: [
+        {
+          name: "DORMEX Platform",
+          type: "project",
+          targetId: "dormex",
+          summary: "Campus hostel allocation with PostgreSQL partial unique indexes and turn execution."
+        },
+        {
+          name: "Operating Systems Course",
+          type: "credential",
+          targetId: "cert-scaler-os",
+          summary: "Scaler Topics course: CPU scheduling, synchronization primitives, memory paging & deadlock mitigation."
+        },
+        {
+          name: "AWS Developer Course",
+          type: "credential",
+          targetId: "cert-infosys-aws",
+          summary: "Infosys Springboard course: cloud compute provisioning & optimization on AWS."
+        }
+      ]
+    }
+  ]
+};
+
+export const ROCM_FLOW_DATA = [
+  {
+    step: "01",
+    id: "rocm-env",
+    title: "ROCm Environment & Setup",
+    headline: "Driver Stack & Runtime Initialization",
+    detail: "Configuring the AMD ROCm open software platform: kernel-mode driver (AMDKFD), user-mode graphics driver (ROCr / HSA runtime), and platform initialization for heterogeneous computing across AMD Instinct accelerators."
+  },
+  {
+    step: "02",
+    id: "amd-arch",
+    title: "AMD GPU Architecture",
+    headline: "Compute Units & Memory Subsystems",
+    detail: "Understanding AMD CDNA and RDNA architecture: Compute Units (CUs), Matrix Cores, Wavefront scheduling (Wave32 / Wave64), High-Bandwidth Memory (HBM2e / HBM3), and cache hierarchies tailored for dense compute."
+  },
+  {
+    step: "03",
+    id: "rocm-libs",
+    title: "ROCm Libraries & AI Frameworks",
+    headline: "MIOpen, rocBLAS & Framework Backends",
+    detail: "Leveraging domain-optimized ROCm libraries: MIOpen for deep learning primitives, rocBLAS / rocWMMA for GEMM acceleration, and upstream execution via PyTorch, TensorFlow, and ONNX Runtime with ROCm backends."
+  },
+  {
+    step: "04",
+    id: "hip-cuda",
+    title: "HIP Programming & CUDA Porting",
+    headline: "Heterogeneous-compute Interface for Portability",
+    detail: "Writing portable C++ kernels with HIP and migrating existing NVIDIA CUDA codebases using HIPIFY tools (hipify-perl / hipify-clang) to target both AMD and CUDA hardware architectures with single-source efficiency."
+  },
+  {
+    step: "05",
+    id: "profiling",
+    title: "Performance Optimization & Profiling",
+    headline: "Omnitrace, Rocprof & Roofline Analysis",
+    detail: "System-level tracing and kernel analysis using rocprof, Omnitrace, and ROCm systems profiler to identify memory bottlenecks, occupancy drop-offs, instruction latency, and compute-to-memory roofline limits."
+  }
+];
 
 export const SKILLS_DATA = [
   {

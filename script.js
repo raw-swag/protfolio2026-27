@@ -1,5 +1,5 @@
 // Main Application Controller & Interactive Logic
-import { PROJECTS, CLIENT_WORK, ACHIEVEMENTS, SKILLS_DATA, EDUCATION_DATA, TEAM_MEMBERS, MORE_BUILDS } from './data.js';
+import { PROJECTS, CLIENT_WORK, ACHIEVEMENTS, SKILLS_DATA, EDUCATION_DATA, TEAM_MEMBERS, MORE_BUILDS, SIGNAL_MAP_DATA, ROCM_FLOW_DATA } from './data.js';
 
 // DOM Elements
 const docEl = document.documentElement;
@@ -90,19 +90,19 @@ function initScrollReveals() {
       const counterEl = entry.target.querySelector('[data-count]');
       if (!counterEl) return;
 
-      const targetVal = parseFloat(counterEl.dataset.count);
+      const targetVal = parseInt(counterEl.dataset.count, 10);
       const startTime = performance.now();
-      const duration = 1200;
+      const duration = 1000;
 
       function updateCounter(now) {
         const progress = Math.min((now - startTime) / duration, 1);
         const easeVal = 1 - Math.pow(1 - progress, 3);
-        counterEl.textContent = (targetVal * easeVal).toFixed(1);
+        counterEl.textContent = Math.round(targetVal * easeVal);
         if (progress < 1) requestAnimationFrame(updateCounter);
       }
       requestAnimationFrame(updateCounter);
     });
-  }, { threshold: 0.5 });
+  }, { threshold: 0.3 });
 
   document.querySelectorAll('.metric-item').forEach(el => counterObserver.observe(el));
 }
@@ -829,58 +829,393 @@ function initSkillsAccordion() {
 }
 
 /* ==========================================================================
-   8. CERTIFICATES & LEARNING RENDERER
+   8. CERTIFICATES & LEARNING RENDERER (With Category Tabs & Featured ROCm Card)
    ========================================================================== */
 function initCertificatesRenderer() {
   const container = document.getElementById('certCardsContainer');
+  const spotlightContainer = document.getElementById('featuredRocmSpotlight');
+  const tabBtns = document.querySelectorAll('.cert-tab-btn');
   if (!container) return;
 
   const certCategory = ACHIEVEMENTS.categories.find(c => c.name === "Certifications & Learning");
   if (!certCategory || !certCategory.items) return;
 
-  container.innerHTML = certCategory.items.map((cert, idx) => `
-    <article class="cert-card" data-r style="transition-delay:${Math.min(idx * 70, 420)}ms">
-      <div class="cert-card-header">
+  const allCerts = certCategory.items;
+  const rocmCert = allCerts.find(c => c.id === 'amd-rocm');
+
+  // 1. Render Featured AMD ROCm Spotlight Card
+  if (spotlightContainer && rocmCert) {
+    spotlightContainer.innerHTML = `
+      <div class="rocm-spotlight-inner" id="cert-amd-rocm">
         <div>
-          <h4>${cert.title}</h4>
-          <span class="cert-issuer">${cert.organization}</span>
-        </div>
-        <span class="mono" style="font-size:12px; color:var(--mute); white-space:nowrap;">${cert.date}</span>
-      </div>
-      <p class="cert-summary">${cert.summary}</p>
-      <div class="cert-card-footer">
-        <span class="mono" style="color:var(--mute); font-size:11px;">${cert.proofType}</span>
-        ${cert.proofLink ? `
-          <div style="display:flex; gap:8px;">
-            ${cert.isImage ? `
-              <button type="button" class="btn sm outline-acc" data-view-proof="${cert.proofLink}" data-proof-title="${cert.title} — ${cert.organization}">
-                Preview ↗
-              </button>
-            ` : `
-              <a class="btn sm outline-acc" href="${cert.proofLink}" target="_blank" rel="noopener noreferrer">
-                View PDF ↗
-              </a>
-            `}
+          <span class="rocm-brand-badge">✦ NEWEST FEATURED CREDENTIAL · AMD AI ACADEMY</span>
+          <h4>${rocmCert.title}</h4>
+          <span class="rocm-formal-title">${rocmCert.formalTitle}</span>
+          <p class="rocm-summary">${rocmCert.summary}</p>
+
+          <div class="rocm-curriculum-grid">
+            ${rocmCert.curriculum ? rocmCert.curriculum.map(c => `<div class="rocm-curriculum-item">${c}</div>`).join('') : ''}
           </div>
-        ` : `
-          <span class="mono" style="color:var(--mute); font-size:11px;">Completed</span>
-        `}
+
+          <div class="rocm-actions">
+            <a class="btn sm solid" href="${rocmCert.proofLink}" target="_blank" rel="noopener noreferrer">
+              Verify Credential ↗
+            </a>
+            <a class="btn sm" href="${rocmCert.linkedInUrl}" target="_blank" rel="noopener noreferrer">
+              LinkedIn Announcement ↗
+            </a>
+            <a class="btn sm outline-acc" href="#gpuComputeExperience">
+              Explore ROCm Systems Flow ↓
+            </a>
+          </div>
+        </div>
+
+        <div class="rocm-side-telemetry">
+          <div class="rocm-meta-row">
+            <span>ISSUING BODY</span>
+            <strong>AMD AI Academy</strong>
+          </div>
+          <div class="rocm-meta-row">
+            <span>VERIFIED DATE</span>
+            <strong>November 2026</strong>
+          </div>
+          <div class="rocm-meta-row">
+            <span>FOCUS AREAS</span>
+            <strong>ROCm · Instinct · HIP · AI</strong>
+          </div>
+          <div class="rocm-meta-row">
+            <span>OFFICIAL PROGRAM</span>
+            <a href="${rocmCert.officialUrl}" target="_blank" rel="noopener noreferrer" class="mono" style="font-size:11px; color:var(--acc);">
+              developer.amd.com ↗
+            </a>
+          </div>
+        </div>
       </div>
-    </article>
+    `;
+  }
+
+  // 2. Render Grid Cards with Category Filtering
+  let activeFilter = 'all';
+
+  function renderGrid(filter) {
+    const filtered = filter === 'all' ? allCerts : allCerts.filter(c => c.category === filter);
+
+    container.innerHTML = filtered.map((cert, idx) => `
+      <article class="cert-card ${cert.featured ? 'is-featured-border' : ''}" id="cert-${cert.id || idx}" data-r style="transition-delay:${Math.min(idx * 60, 420)}ms">
+        <div class="cert-card-header">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+              <span class="mono" style="font-size:10px; color:var(--acc); text-transform:uppercase;">${cert.category || 'Certification'}</span>
+              ${cert.featured ? '<span class="badge" style="font-size:9px; padding:2px 6px; background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3)">Featured</span>' : ''}
+            </div>
+            <h4>${cert.title}</h4>
+            <span class="cert-issuer">${cert.organization}</span>
+          </div>
+          <span class="mono" style="font-size:12px; color:var(--mute); white-space:nowrap;">${cert.date}</span>
+        </div>
+        <p class="cert-summary">${cert.summary}</p>
+        <div class="cert-card-footer">
+          <span class="mono" style="color:var(--mute); font-size:11px;">${cert.proofType}</span>
+          ${cert.proofLink ? `
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              ${cert.isImage ? `
+                <button type="button" class="btn sm outline-acc" data-view-proof="${cert.proofLink}" data-proof-title="${cert.title} — ${cert.organization}">
+                  Preview ↗
+                </button>
+              ` : `
+                <a class="btn sm outline-acc" href="${cert.proofLink}" target="_blank" rel="noopener noreferrer">
+                  ${cert.isFile ? 'View PDF ↗' : 'Verify ↗'}
+                </a>
+              `}
+              ${cert.linkedInUrl ? `
+                <a class="btn sm" href="${cert.linkedInUrl}" target="_blank" rel="noopener noreferrer">
+                  Announcement ↗
+                </a>
+              ` : ''}
+            </div>
+          ` : `
+            <span class="mono" style="color:var(--mute); font-size:11px;">Completed</span>
+          `}
+        </div>
+      </article>
+    `).join('');
+
+    // Re-observe dynamically rendered cert cards
+    if (!prefersReduced && 'IntersectionObserver' in window) {
+      const certObserver = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in');
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      container.querySelectorAll('.cert-card[data-r]').forEach(card => certObserver.observe(card));
+    }
+  }
+
+  // Filter tab events
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      activeFilter = btn.dataset.certFilter;
+      renderGrid(activeFilter);
+    });
+  });
+
+  renderGrid('all');
+}
+
+/* ==========================================================================
+   8.5 ENGINEERING SIGNAL MAP INTERACTIVE CONTROLLER
+   ========================================================================== */
+function initSignalMap() {
+  const svg = document.getElementById('signalMapSvg');
+  const edgesGroup = document.getElementById('signalMapEdgesGroup');
+  const nodesGroup = document.getElementById('signalMapNodesGroup');
+  const inspector = document.getElementById('signalNodeInspector');
+  const inspectorTitle = document.getElementById('inspectorTitle');
+  const inspectorBadge = document.getElementById('inspectorBadge');
+  const inspectorMeta = document.getElementById('inspectorMeta');
+  const inspectorDesc = document.getElementById('inspectorDesc');
+  const inspectorPills = document.getElementById('inspectorPills');
+  const inspectorAction = document.getElementById('inspectorAction');
+  const mobileContainer = document.getElementById('signalMapMobile');
+
+  if (!svg || !edgesGroup || !nodesGroup || !SIGNAL_MAP_DATA) return;
+
+  // Center coords for 1000x600 viewBox
+  const CX = 500;
+  const CY = 300;
+  const RADIUS = 180;
+
+  // Domain Node Coordinates
+  const domainNodes = SIGNAL_MAP_DATA.domains.map((domain, i) => {
+    const angle = (i * (2 * Math.PI / SIGNAL_MAP_DATA.domains.length)) - (Math.PI / 2);
+    const x = Math.round(CX + RADIUS * Math.cos(angle));
+    const y = Math.round(CY + RADIUS * Math.sin(angle));
+    return {
+      ...domain,
+      x,
+      y,
+      angle
+    };
+  });
+
+  // Render SVG Edges (Center to each domain)
+  edgesGroup.innerHTML = domainNodes.map(d => `
+    <line class="map-edge" id="edge-${d.id}" x1="${CX}" y1="${CY}" x2="${d.x}" y2="${d.y}" />
   `).join('');
 
-  // Re-observe dynamically rendered cert cards
-  if (!prefersReduced && 'IntersectionObserver' in window) {
-    const certObserver = new IntersectionObserver((entries, obs) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('in');
-          obs.unobserve(entry.target);
+  // Render SVG Nodes (Center + 5 domains)
+  let nodesHtml = `
+    <!-- Center Node: Saugat -->
+    <g class="map-node-group" id="node-saugat" role="button" tabindex="0" aria-label="Center Node: Saugat Rauniyar">
+      <circle class="map-node-circle" cx="${CX}" cy="${CY}" r="42" fill="var(--card-bg-elevated)" stroke="var(--ink)" stroke-width="2" />
+      <circle cx="${CX}" cy="${CY}" r="34" fill="rgba(var(--acc-rgb), 0.08)" stroke="var(--line)" stroke-width="1" />
+      <text class="map-node-label" x="${CX}" y="${CY - 4}" text-anchor="middle" font-size="11">SAUGAT</text>
+      <text class="map-node-label" x="${CX}" y="${CY + 10}" text-anchor="middle" font-size="10" fill="var(--mute)">RAUNIYAR</text>
+      <text class="map-node-sublabel" x="${CX}" y="${CY + 22}" text-anchor="middle" font-size="8">CORE NODE</text>
+    </g>
+  `;
+
+  nodesHtml += domainNodes.map(d => `
+    <g class="map-node-group" id="node-${d.id}" role="button" tabindex="0" aria-label="Engineering Domain: ${d.name}">
+      <circle class="map-node-circle" cx="${d.x}" cy="${d.y}" r="34" fill="var(--card-bg-elevated)" stroke="${d.color}" stroke-width="2" />
+      <circle cx="${d.x}" cy="${d.y}" r="4" fill="${d.color}" />
+      <text class="map-node-label" x="${d.x}" y="${d.y > CY ? d.y + 48 : d.y - 42}" text-anchor="middle">${d.name}</text>
+      <text class="map-node-sublabel" x="${d.x}" y="${d.y > CY ? d.y + 60 : d.y - 30}" text-anchor="middle">${d.short}</text>
+    </g>
+  `).join('');
+
+  nodesGroup.innerHTML = nodesHtml;
+
+  // Active state controller
+  function inspectDomain(domain) {
+    if (!inspector) return;
+    inspector.classList.add('highlight');
+    setTimeout(() => inspector.classList.remove('highlight'), 300);
+
+    // Update active SVG classes
+    document.querySelectorAll('.map-edge').forEach(e => e.classList.remove('active'));
+    document.querySelectorAll('.map-node-group').forEach(n => n.classList.remove('active'));
+
+    const edgeEl = document.getElementById(`edge-${domain.id}`);
+    const nodeEl = document.getElementById(`node-${domain.id}`);
+    if (edgeEl) edgeEl.classList.add('active');
+    if (nodeEl) nodeEl.classList.add('active');
+
+    // Update inspector content
+    if (inspectorBadge) inspectorBadge.textContent = 'ENGINEERING DOMAIN';
+    if (inspectorMeta) inspectorMeta.textContent = `${domain.connections.length} Direct Connections`;
+    if (inspectorTitle) inspectorTitle.textContent = domain.name;
+    if (inspectorDesc) inspectorDesc.textContent = domain.description;
+
+    if (inspectorPills) {
+      inspectorPills.innerHTML = domain.connections.map(c => `
+        <a class="inspector-pill-link" href="#${c.targetId}">
+          <div>
+            <strong>${c.name}</strong>
+            <small style="display:block; color:var(--mute); font-size:11px;">${c.summary}</small>
+          </div>
+          <span style="color:var(--acc); font-size:12px;">Navigate ↗</span>
+        </a>
+      `).join('');
+    }
+
+    if (inspectorAction) {
+      inspectorAction.innerHTML = `
+        <a class="btn sm solid" href="#${domain.connections[0]?.targetId || 'projects'}">
+          Explore Related System (${domain.connections[0]?.name}) ↗
+        </a>
+      `;
+    }
+  }
+
+  function inspectCenter() {
+    document.querySelectorAll('.map-edge').forEach(e => e.classList.remove('active'));
+    document.querySelectorAll('.map-node-group').forEach(n => n.classList.remove('active'));
+    const centerNode = document.getElementById('node-saugat');
+    if (centerNode) centerNode.classList.add('active');
+
+    if (inspectorBadge) inspectorBadge.textContent = 'CENTRAL ARCHITECTURE';
+    if (inspectorMeta) inspectorMeta.textContent = '5 Domains Interconnected';
+    if (inspectorTitle) inspectorTitle.textContent = SIGNAL_MAP_DATA.center.label;
+    if (inspectorDesc) inspectorDesc.textContent = `${SIGNAL_MAP_DATA.center.role} — ${SIGNAL_MAP_DATA.center.summary}. Select any satellite node to trace how technical interests connect to deployed codebases and certifications.`;
+
+    if (inspectorPills) {
+      inspectorPills.innerHTML = SIGNAL_MAP_DATA.domains.map(d => `
+        <button type="button" class="inspector-pill-link" data-select-domain="${d.id}" style="width:100%; text-align:left; cursor:pointer;">
+          <div>
+            <strong>${d.name}</strong>
+            <small style="display:block; color:var(--mute); font-size:11px;">${d.short}</small>
+          </div>
+          <span style="color:var(--acc); font-size:12px;">Trace ✦</span>
+        </button>
+      `).join('');
+
+      inspectorPills.querySelectorAll('[data-select-domain]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const found = SIGNAL_MAP_DATA.domains.find(d => d.id === btn.dataset.selectDomain);
+          if (found) inspectDomain(found);
+        });
+      });
+    }
+
+    if (inspectorAction) {
+      inspectorAction.innerHTML = `
+        <a class="btn sm outline-acc" href="#projects">
+          Inspect Flagship Projects ↓
+        </a>
+      `;
+    }
+  }
+
+  // Bind mouse, click and keyboard events
+  const centerEl = document.getElementById('node-saugat');
+  if (centerEl) {
+    centerEl.addEventListener('mouseenter', inspectCenter);
+    centerEl.addEventListener('click', inspectCenter);
+    centerEl.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        inspectCenter();
+      }
+    });
+  }
+
+  domainNodes.forEach(domain => {
+    const el = document.getElementById(`node-${domain.id}`);
+    if (el) {
+      el.addEventListener('mouseenter', () => inspectDomain(domain));
+      el.addEventListener('click', () => inspectDomain(domain));
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          inspectDomain(domain);
         }
       });
-    }, { threshold: 0.1 });
-    container.querySelectorAll('.cert-card[data-r]').forEach(card => certObserver.observe(card));
+    }
+  });
+
+  // Render Mobile Accessible Domain Cards
+  if (mobileContainer) {
+    mobileContainer.innerHTML = SIGNAL_MAP_DATA.domains.map(domain => `
+      <div class="mobile-signal-domain-card">
+        <h4>${domain.name}</h4>
+        <span class="mono" style="font-size:11px; color:var(--acc); display:block; margin-bottom:6px;">${domain.short}</span>
+        <p>${domain.description}</p>
+        <div class="mobile-signal-pills">
+          ${domain.connections.map(c => `
+            <a class="inspector-pill-link" href="#${c.targetId}">
+              <div>
+                <strong>${c.name}</strong>
+                <small style="display:block; color:var(--mute); font-size:11px;">${c.summary}</small>
+              </div>
+              <span style="color:var(--acc); font-size:12px;">↗</span>
+            </a>
+          `).join('')}
+        </div>
+      </div>
+    `).join('');
   }
+
+  inspectDomain(domainNodes[0]);
+}
+
+/* ==========================================================================
+   8.6 GPU COMPUTING CONCEPTUAL EXPERIENCE CONTROLLER
+   ========================================================================== */
+function initGpuExperience() {
+  const navContainer = document.querySelector('.rocm-flow-nav');
+  const panel = document.getElementById('rocmFlowDetailPanel');
+  if (!navContainer || !panel || !ROCM_FLOW_DATA) return;
+
+  function setStep(idx) {
+    const step = ROCM_FLOW_DATA[idx];
+    if (!step) return;
+
+    navContainer.querySelectorAll('.rocm-step-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', i === idx);
+      btn.setAttribute('aria-selected', String(i === idx));
+    });
+
+    panel.innerHTML = `
+      <span class="rocm-detail-badge">CURRICULUM MODULE ${step.step} / 05</span>
+      <h4>${step.title}</h4>
+      <div class="rocm-detail-headline">${step.headline}</div>
+      <p>${step.detail}</p>
+      <div style="margin-top:8px; display:flex; gap:12px; flex-wrap:wrap;">
+        <a class="btn sm solid" href="https://developer.amd.com/rocm-certified/" target="_blank" rel="noopener noreferrer">
+          AMD ROCm Official Docs ↗
+        </a>
+        <a class="btn sm outline-acc" href="#cert-amd-rocm">
+          View Verified Credential ↑
+        </a>
+      </div>
+    `;
+  }
+
+  navContainer.innerHTML = ROCM_FLOW_DATA.map((step, idx) => `
+    <button type="button" class="rocm-step-btn ${idx === 0 ? 'active' : ''}" role="tab" aria-selected="${idx === 0 ? 'true' : 'false'}" data-rocm-step="${idx}">
+      <span class="rocm-step-num">${step.step}</span>
+      <span>${step.title}</span>
+    </button>
+  `).join('');
+
+  navContainer.querySelectorAll('.rocm-step-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.rocmStep, 10);
+      setStep(idx);
+    });
+  });
+
+  setStep(0);
 }
 
 /* ==========================================================================
@@ -992,29 +1327,57 @@ function initTerminal() {
   whoami        - System persona summary
   skills        - Full technology breakdown
   projects      - List flagship engineering projects
-  achievements  - HackaFest 2026 award details & timeline
+  certifications- Verified credential collection (AMD ROCm, NVIDIA, etc.)
+  signal        - Engineering Signal Map breakdown
+  gpu           - ROCm & GPU computing curriculum overview
+  achievements  - SecLeaf CTF 2nd Place & HackaFest 3rd Place
   impostr       - Inspect IMPOSTR threat analysis platform
   lucerna       - Inspect LUCERNA human-in-the-loop workstation
   dormex        - Inspect DORMEX hostel allocation system
   clients       - Real client websites (Capital Marketing & ShubhLabh)
   writing       - Technical Medium article on web threat engine
   resume        - Download or open verified PDF resume
-  education     - SIT CGPA & academic background
+  education     - SIT & academic background
   contact       - Direct email and phone
   social        - GitHub, LinkedIn, Medium profiles
   neofetch      - System summary info
   clear         - Clear terminal console
   gui           - Exit terminal and return to page
-  open &lt;id&gt;    - Jump directly to section (e.g. open impostr)`,
+  open &lt;id&gt;    - Jump directly to section (e.g. open rocm, open impostr)`,
 
-    about: () => `Saugat Rauniyar — Computer Science student building intelligent software,
-cybersecurity tools, and practical web platforms across AI, threat intelligence, and systems.`,
+    about: () => `Saugat Rauniyar — Computer Science undergraduate at Siddaganga Institute of Technology
+building intelligent software, cybersecurity forensics engines, and high-performance systems across
+AI, threat intelligence, and GPU computing.`,
 
     whoami: () => `<span style="color:var(--acc)">SAUGAT RAUNIYAR</span>
-Role: Software Engineer · Cybersecurity Builder · AI Enthusiast
+Role: Software Engineer · Cybersecurity Builder · AI & GPU Developer
 Institution: Siddaganga Institute of Technology (CSE @ SIT)
-Academic Standing: CGPA 9.5 / 10.0
-Focus: AI Telemetry, Web Forensics, Full-Stack Systems`,
+Academic Standing: Undergraduate CSE Candidate (2025 — 2029)
+Focus: GPU-Accelerated AI, Web Threat Forensics, Heterogeneous Systems`,
+
+    certifications: () => {
+      const certCat = ACHIEVEMENTS.categories.find(c => c.name === "Certifications & Learning");
+      if (!certCat || !certCat.items) return "No certifications found.";
+      return `<span style="color:var(--bronze)">VERIFIED CREDENTIALS (10 Total Milestones):</span>\n\n` +
+        certCat.items.map((c, i) => `[0${i + 1}] <span style="color:var(--acc)">${c.title}</span>\n     Issuer: ${c.organization} (${c.date})\n     Focus: ${c.summary}`).join('\n\n');
+    },
+
+    signal: () => `ENGINEERING SIGNAL MAP:
+Central Core: SAUGAT RAUNIYAR
+Interconnected Domains:
+  1. CYBERSECURITY         -> IMPOSTR, SecLeaf CTF (2nd Place), Threat Forensics Paper
+  2. ARTIFICIAL INTELLIGENCE -> LUCERNA Workstation, NLP Scanner, NVIDIA Jetson Edge AI Certificate
+  3. GPU COMPUTING          -> AMD ROCm Certified Associate, ROCm Curriculum Flow, Edge AI Competency
+  4. FULL-STACK ENGINEERING -> Capital Marketing, ShubhLabh Construction, SAUGAT.OS
+  5. SYSTEMS & INFRASTRUCTURE -> DORMEX Platform, Scaler OS Course, AWS Developer Course`,
+
+    gpu: () => `<span style="color:#f59e0b">AMD ROCm™ SOFTWARE APPLICATION DEVELOPMENT:</span>
+Core Curriculum Modules:
+  01. ROCm Environment & Setup (AMDKFD / ROCr / HSA Runtime)
+  02. AMD GPU Architecture (CDNA / RDNA Compute Units & Matrix Cores)
+  03. ROCm Libraries & Frameworks (MIOpen, rocBLAS, PyTorch / ONNX backends)
+  04. HIP Programming & CUDA Porting (HIPIFY clang/perl conversion)
+  05. Performance Optimization & Profiling (rocprof, Omnitrace & Roofline)`,
 
     skills: () => SKILLS_DATA.map(g => `<span style="color:var(--acc)">${g.category}</span>\n  ${g.skills.map(s => s.name).join(', ')}`).join('\n\n'),
 
@@ -1087,13 +1450,14 @@ Medium: <a href="https://medium.com/@saugat.rauniyar.work/" target="_blank" rel=
 
     neofetch: () => `SAUGAT
 ────────────────────
-OS: SAUGAT.OS
-Role: Software Engineer
-Focus: AI / Security / Full Stack
-Education: CSE @ SIT
+OS: SAUGAT.OS (AI × Cybersecurity Engineering Console)
+Role: Software Engineer · Cybersecurity Builder · AI & GPU Developer
+Focus: GPU Compute (AMD ROCm), Threat Forensics, Heterogeneous Systems
+Education: CSE @ Siddaganga Institute of Technology
 HackaFest: 3rd Place (Team CyberDNA)
-Certifications: Scaler OS, NVIDIA, Anthropic, NASSCOM, Infosys
-Status: Building...`,
+SecLeaf CTF: 2nd Place (Team Merp Era, 7,407 pts)
+Certifications: AMD ROCm, Scaler OS, NVIDIA, Anthropic, NASSCOM, Infosys (10 Total)
+Status: Building & Exploring...`,
 
     gui: () => {
       closeTerminal();
@@ -1125,6 +1489,11 @@ Status: Building...`,
         lucerna: 'projects',
         dormex: 'projects',
         projects: 'projects',
+        signal: 'signal-map',
+        map: 'signal-map',
+        rocm: 'certifications',
+        gpu: 'gpuComputeExperience',
+        certifications: 'certifications',
         clients: 'clients',
         achievements: 'achievements',
         writing: 'writing',
@@ -1362,6 +1731,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initAchievementModal();
   initSkillsAccordion();
   initCertificatesRenderer();
+  initSignalMap();
+  initGpuExperience();
   initMobileNav();
   initMarquee();
   initTerminal();

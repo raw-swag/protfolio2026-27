@@ -52,6 +52,7 @@
 
     <ul class="nav-links">
       <li><a href="#projects" class="ul">Projects</a></li>
+      <li><a href="#signal-map" class="ul">Signal Map</a></li>
       <li><a href="#achievements" class="ul">Achievements</a></li>
       <li><a href="#clients" class="ul">Client Work</a></li>
       <li><a href="#writing" class="ul">Writing</a></li>
@@ -95,11 +96,12 @@
   <div id="mobileMenu" aria-label="Mobile Navigation" role="dialog" aria-modal="true">
     <div class="menu-list">
       <a class="menu-item" href="#projects"><small>01</small>Selected Work</a>
-      <a class="menu-item" href="#achievements"><small>02</small>Achievements</a>
-      <a class="menu-item" href="#clients"><small>03</small>Client Work</a>
-      <a class="menu-item" href="#writing"><small>04</small>Technical Writing</a>
-      <a class="menu-item" href="#skills-education"><small>05</small>Skills &amp; Education</a>
-      <a class="menu-item" href="#about-contact"><small>06</small>About &amp; Contact</a>
+      <a class="menu-item" href="#signal-map"><small>02</small>Engineering Signal Map</a>
+      <a class="menu-item" href="#achievements"><small>03</small>Achievements</a>
+      <a class="menu-item" href="#clients"><small>04</small>Client Work</a>
+      <a class="menu-item" href="#writing"><small>05</small>Technical Writing</a>
+      <a class="menu-item" href="#skills-education"><small>06</small>Skills &amp; Education</a>
+      <a class="menu-item" href="#about-contact"><small>07</small>About &amp; Contact</a>
     </div>
     <div class="mobile-footer">
       <button class="btn solid" id="osMobileBtn" type="button" style="width:100%">&gt; OPEN SAUGAT.OS</button>
@@ -150,6 +152,11 @@
             <b>AI Product Developer</b>
           </div>
 
+          <div class="hero-currently-exploring mono" data-r>
+            <span class="exploring-pulse-dot" aria-hidden="true"></span>
+            <span>Currently Exploring: GPU-Accelerated AI · Cybersecurity · Intelligent Systems</span>
+          </div>
+
           <p class="lead">
             I build AI, cybersecurity, and full-stack products that solve real problems.
           </p>
@@ -174,15 +181,15 @@
     <!-- Metrics Bar -->
     <div class="metrics-bar" data-r aria-label="Proof of work key metrics">
       <div class="metric-item">
-        <strong style="color:var(--bronze)">3RD</strong>
+        <strong style="color:var(--bronze)"><span class="metric-count" data-count="3">3</span>RD</strong>
         <span>Place · HackaFest 2026</span>
       </div>
       <div class="metric-item">
-        <strong>2</strong>
+        <strong><span class="metric-count" data-count="2">2</span></strong>
         <span>Production Client Websites</span>
       </div>
       <div class="metric-item">
-        <strong>9</strong>
+        <strong><span class="metric-count" data-count="10">10</span></strong>
         <span>Certificates &amp; Learning Milestones</span>
       </div>
       <div class="metric-item">
@@ -574,6 +581,54 @@
     </section>
 
     <!-- ==========================================================================
+         2.5 ENGINEERING SIGNAL MAP
+         ========================================================================== -->
+    <section class="signal-map-section" id="signal-map">
+      <div class="signal-map-header" data-r>
+        <span class="tag">Systems Visualization</span>
+        <h2 class="scan-heading">ENGINEERING SIGNAL MAP<i>.</i></h2>
+        <p class="section-desc">
+          Connecting the systems I build, the technologies I explore, and the problems I solve.
+        </p>
+      </div>
+
+      <div class="signal-map-container" data-r>
+        <!-- Desktop Interactive Network Graph -->
+        <div class="signal-map-desktop" id="signalMapDesktop" role="region" aria-label="Interactive Engineering Signal Graph">
+          <svg class="signal-map-svg" id="signalMapSvg" viewBox="0 0 1000 600" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <!-- Dynamic SVG connections rendered via script.js -->
+            <g id="signalMapEdgesGroup"></g>
+            <g id="signalMapNodesGroup"></g>
+          </svg>
+        </div>
+
+        <!-- Detail Inspector Card for Active Node -->
+        <div class="signal-node-inspector" id="signalNodeInspector" aria-live="polite">
+          <div class="inspector-badge-wrap">
+            <span class="badge mono" id="inspectorBadge">Signal Node</span>
+            <span class="mono" id="inspectorMeta" style="font-size:12px; color:var(--mute)">Select a node to inspect</span>
+          </div>
+          <h3 id="inspectorTitle">SAUGAT RAUNIYAR</h3>
+          <p id="inspectorDesc">Core engineering node interconnecting Cybersecurity, Artificial Intelligence, GPU Computing, Full-Stack Engineering, and Systems Infrastructure.</p>
+          <div class="inspector-connections-wrap" id="inspectorConnectionsWrap">
+            <span class="mono" style="font-size:11px; color:var(--mute); display:block; margin-bottom:8px;">CONNECTED SYSTEMS &amp; CREDENTIALS:</span>
+            <div class="inspector-pills" id="inspectorPills">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+          <div class="inspector-action" id="inspectorAction">
+            <!-- Optional navigation button -->
+          </div>
+        </div>
+
+        <!-- Mobile Fallback / Accessible Vertically Organized List -->
+        <div class="signal-map-mobile" id="signalMapMobile">
+          <!-- Dynamically populated from SIGNAL_MAP_DATA -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
          3. ACHIEVEMENTS ARCHIVE
          ========================================================================== -->
     <section class="achievements-section" id="achievements">
@@ -736,10 +791,54 @@
         </div>
 
         <!-- Group 3: Certifications & Learning (Rendered from data.js) -->
-        <div class="archive-group" data-r>
-          <h3>Certifications &amp; Continuous Learning</h3>
+        <div class="archive-group" data-r id="certifications">
+          <div class="cert-group-header">
+            <div>
+              <h3>Certifications &amp; Continuous Learning</h3>
+              <p class="section-desc" style="margin-bottom:16px;">
+                Verified credentials across AI &amp; Machine Learning, Cloud &amp; GPU Computing, Systems Engineering, and Software Architecture.
+              </p>
+            </div>
+            <!-- Category Filter Tabs -->
+            <div class="cert-filter-tabs" role="tablist" aria-label="Filter credentials by category">
+              <button type="button" class="cert-tab-btn active" role="tab" aria-selected="true" data-cert-filter="all">All (10)</button>
+              <button type="button" class="cert-tab-btn" role="tab" aria-selected="false" data-cert-filter="AI &amp; Machine Learning">AI &amp; Machine Learning (6)</button>
+              <button type="button" class="cert-tab-btn" role="tab" aria-selected="false" data-cert-filter="Cloud &amp; GPU Computing">Cloud &amp; GPU Computing (2)</button>
+              <button type="button" class="cert-tab-btn" role="tab" aria-selected="false" data-cert-filter="Software Engineering &amp; Other Learning">Systems &amp; Software (2)</button>
+            </div>
+          </div>
+
+          <!-- Featured Credential Spotlight: AMD ROCm -->
+          <div class="featured-rocm-spotlight" id="featuredRocmSpotlight" data-r>
+            <!-- Dynamically populated or enhanced via script.js -->
+          </div>
+
           <div class="cert-cards-grid" id="certCardsContainer">
             <!-- Dynamically populated from data.js with proof-backed links and tokens -->
+          </div>
+        </div>
+
+        <!-- GPU COMPUTING CONCEPTUAL EXPERIENCE -->
+        <div class="gpu-compute-experience" id="gpuComputeExperience" data-r>
+          <div class="gpu-exp-header">
+            <span class="tag tag-bronze">Educational Architecture</span>
+            <h3 class="scan-heading">FROM GPU COMPUTE TO AI SYSTEMS</h3>
+            <p class="section-desc" style="max-width:65ch;">
+              An educational walkthrough of core AMD ROCm™ software application development topics — from low-level Instinct compute units and HIP portability to accelerated AI frameworks and performance profiling.
+            </p>
+          </div>
+
+          <!-- Interactive GPU Compute Pipeline Flow -->
+          <div class="rocm-flow-container">
+            <div class="rocm-flow-nav" role="tablist" aria-label="ROCm curriculum topics">
+              <!-- Dynamically populated from ROCM_FLOW_DATA -->
+            </div>
+            <div class="rocm-flow-detail-panel" id="rocmFlowDetailPanel" aria-live="polite">
+              <!-- Dynamically populated from selected ROCM_FLOW_DATA step -->
+            </div>
+          </div>
+          <div class="rocm-disclaimer mono">
+            <span>Notice: Educational visualization of AMD ROCm certification topics. Not a hardware benchmark or claim of production deployment.</span>
           </div>
         </div>
       </div>
