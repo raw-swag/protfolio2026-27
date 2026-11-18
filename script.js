@@ -829,12 +829,14 @@ function initSkillsAccordion() {
 }
 
 /* ==========================================================================
-   8. CERTIFICATES & LEARNING RENDERER (With Category Tabs & Featured ROCm Card)
+   8. CERTIFICATES & LEARNING RENDERER (Curated 6 Initial + View All 10 Expandable)
    ========================================================================== */
 function initCertificatesRenderer() {
   const container = document.getElementById('certCardsContainer');
   const spotlightContainer = document.getElementById('featuredRocmSpotlight');
   const tabBtns = document.querySelectorAll('.cert-tab-btn');
+  const toggleBtn = document.getElementById('certToggleViewBtn');
+  const toggleWrap = document.getElementById('certViewMoreWrap');
   if (!container) return;
 
   const certCategory = ACHIEVEMENTS.categories.find(c => c.name === "Certifications & Learning");
@@ -842,6 +844,19 @@ function initCertificatesRenderer() {
 
   const allCerts = certCategory.items;
   const rocmCert = allCerts.find(c => c.id === 'amd-rocm');
+
+  // Curated 6 default items based on relevance & evidence
+  const curatedIds = [
+    'amd-rocm',
+    'nvidia-jetson',
+    'anthropic-claude',
+    'infosys-neural-nlp',
+    'infosys-aws',
+    'scaler-os'
+  ];
+
+  let isExpanded = false;
+  let activeFilter = 'all';
 
   // 1. Render Featured AMD ROCm Spotlight Card
   if (spotlightContainer && rocmCert) {
@@ -894,48 +909,94 @@ function initCertificatesRenderer() {
     `;
   }
 
-  // 2. Render Grid Cards with Category Filtering
-  let activeFilter = 'all';
+  // Helper to determine action button text & style
+  function renderActionBtn(cert) {
+    if (!cert.proofLink) {
+      return `<span class="mono" style="color:var(--mute); font-size:11px;">Completed</span>`;
+    }
 
-  function renderGrid(filter) {
-    const filtered = filter === 'all' ? allCerts : allCerts.filter(c => c.category === filter);
+    let primaryBtn = '';
+    if (cert.isImage) {
+      primaryBtn = `
+        <button type="button" class="btn sm outline-acc" data-view-proof="${cert.proofLink}" data-proof-title="${cert.title} — ${cert.organization}">
+          Preview ↗
+        </button>
+      `;
+    } else if (cert.id === 'amd-rocm') {
+      primaryBtn = `
+        <a class="btn sm solid" href="${cert.proofLink}" target="_blank" rel="noopener noreferrer">
+          Verify Credential ↗
+        </a>
+      `;
+    } else {
+      primaryBtn = `
+        <a class="btn sm outline-acc" href="${cert.proofLink}" target="_blank" rel="noopener noreferrer">
+          View Certificate ↗
+        </a>
+      `;
+    }
 
-    container.innerHTML = filtered.map((cert, idx) => `
-      <article class="cert-card ${cert.featured ? 'is-featured-border' : ''}" id="cert-${cert.id || idx}" data-r style="transition-delay:${Math.min(idx * 60, 420)}ms">
+    const linkedInBtn = cert.linkedInUrl ? `
+      <a class="btn sm" href="${cert.linkedInUrl}" target="_blank" rel="noopener noreferrer">
+        Announcement ↗
+      </a>
+    ` : '';
+
+    return `<div style="display:flex; gap:8px; flex-wrap:wrap;">${primaryBtn}${linkedInBtn}</div>`;
+  }
+
+  // 2. Render Grid Cards with Curation & Filtering
+  function renderGrid() {
+    let filtered = activeFilter === 'all' ? allCerts : allCerts.filter(c => c.category === activeFilter);
+
+    // If 'all' is active and NOT expanded, slice to curated 6 entries
+    let displayList = filtered;
+    if (activeFilter === 'all' && !isExpanded) {
+      // Prioritize curatedIds first
+      const curatedItems = curatedIds.map(id => allCerts.find(c => c.id === id)).filter(Boolean);
+      displayList = curatedItems;
+    }
+
+    // Toggle button visibility & label
+    if (toggleWrap && toggleBtn) {
+      if (activeFilter === 'all') {
+        toggleWrap.style.display = 'flex';
+        toggleBtn.setAttribute('aria-expanded', String(isExpanded));
+        if (isExpanded) {
+          toggleBtn.innerHTML = `
+            <span class="cert-toggle-text">Show 6 Featured Credentials</span>
+            <span class="cert-toggle-icon" aria-hidden="true">↑</span>
+          `;
+        } else {
+          toggleBtn.innerHTML = `
+            <span class="cert-toggle-text">View All 10 Credentials</span>
+            <span class="cert-toggle-count mono">(+4 Archive Entries)</span>
+            <span class="cert-toggle-icon" aria-hidden="true">↓</span>
+          `;
+        }
+      } else {
+        // When filtered by specific category, all items in that category are shown
+        toggleWrap.style.display = 'none';
+      }
+    }
+
+    container.innerHTML = displayList.map((cert, idx) => `
+      <article class="cert-card ${cert.featured ? 'is-featured-border' : ''}" id="cert-${cert.id || idx}" data-r style="transition-delay:${Math.min(idx * 50, 350)}ms">
         <div class="cert-card-header">
           <div>
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
               <span class="mono" style="font-size:10px; color:var(--acc); text-transform:uppercase;">${cert.category || 'Certification'}</span>
               ${cert.featured ? '<span class="badge" style="font-size:9px; padding:2px 6px; background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3)">Featured</span>' : ''}
             </div>
             <h4>${cert.title}</h4>
             <span class="cert-issuer">${cert.organization}</span>
           </div>
-          <span class="mono" style="font-size:12px; color:var(--mute); white-space:nowrap;">${cert.date}</span>
+          <span class="mono cert-card-date">${cert.date}</span>
         </div>
         <p class="cert-summary">${cert.summary}</p>
         <div class="cert-card-footer">
           <span class="mono" style="color:var(--mute); font-size:11px;">${cert.proofType}</span>
-          ${cert.proofLink ? `
-            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-              ${cert.isImage ? `
-                <button type="button" class="btn sm outline-acc" data-view-proof="${cert.proofLink}" data-proof-title="${cert.title} — ${cert.organization}">
-                  Preview ↗
-                </button>
-              ` : `
-                <a class="btn sm outline-acc" href="${cert.proofLink}" target="_blank" rel="noopener noreferrer">
-                  ${cert.isFile ? 'View PDF ↗' : 'Verify ↗'}
-                </a>
-              `}
-              ${cert.linkedInUrl ? `
-                <a class="btn sm" href="${cert.linkedInUrl}" target="_blank" rel="noopener noreferrer">
-                  Announcement ↗
-                </a>
-              ` : ''}
-            </div>
-          ` : `
-            <span class="mono" style="color:var(--mute); font-size:11px;">Completed</span>
-          `}
+          ${renderActionBtn(cert)}
         </div>
       </article>
     `).join('');
@@ -954,6 +1015,18 @@ function initCertificatesRenderer() {
     }
   }
 
+  // Toggle View All / Collapse Button
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      isExpanded = !isExpanded;
+      renderGrid();
+      if (!isExpanded && container) {
+        // Smoothly adjust scroll position back to top of container
+        container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
+  }
+
   // Filter tab events
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -964,11 +1037,11 @@ function initCertificatesRenderer() {
       btn.classList.add('active');
       btn.setAttribute('aria-selected', 'true');
       activeFilter = btn.dataset.certFilter;
-      renderGrid(activeFilter);
+      renderGrid();
     });
   });
 
-  renderGrid('all');
+  renderGrid();
 }
 
 /* ==========================================================================
@@ -1038,17 +1111,36 @@ function initSignalMap() {
   // Active state controller
   function inspectDomain(domain) {
     if (!inspector) return;
-    inspector.classList.add('highlight');
+    inspector.classList.remove('fade-switch');
+    void inspector.offsetWidth; // trigger reflow for animation restart
+    inspector.classList.add('fade-switch', 'highlight');
     setTimeout(() => inspector.classList.remove('highlight'), 300);
 
-    // Update active SVG classes
-    document.querySelectorAll('.map-edge').forEach(e => e.classList.remove('active'));
-    document.querySelectorAll('.map-node-group').forEach(n => n.classList.remove('active'));
+    // Update active SVG classes and dim unrelated connections
+    document.querySelectorAll('.map-edge').forEach(e => {
+      e.classList.remove('active');
+      e.classList.add('dimmed');
+    });
+    document.querySelectorAll('.map-node-group').forEach(n => {
+      n.classList.remove('active');
+      n.classList.add('dimmed');
+    });
 
     const edgeEl = document.getElementById(`edge-${domain.id}`);
     const nodeEl = document.getElementById(`node-${domain.id}`);
-    if (edgeEl) edgeEl.classList.add('active');
-    if (nodeEl) nodeEl.classList.add('active');
+    const centerNode = document.getElementById('node-saugat');
+
+    if (edgeEl) {
+      edgeEl.classList.remove('dimmed');
+      edgeEl.classList.add('active');
+    }
+    if (nodeEl) {
+      nodeEl.classList.remove('dimmed');
+      nodeEl.classList.add('active');
+    }
+    if (centerNode) {
+      centerNode.classList.remove('dimmed');
+    }
 
     // Update inspector content
     if (inspectorBadge) inspectorBadge.textContent = 'ENGINEERING DOMAIN';
@@ -1078,8 +1170,18 @@ function initSignalMap() {
   }
 
   function inspectCenter() {
-    document.querySelectorAll('.map-edge').forEach(e => e.classList.remove('active'));
-    document.querySelectorAll('.map-node-group').forEach(n => n.classList.remove('active'));
+    if (inspector) {
+      inspector.classList.remove('fade-switch');
+      void inspector.offsetWidth;
+      inspector.classList.add('fade-switch');
+    }
+
+    document.querySelectorAll('.map-edge').forEach(e => {
+      e.classList.remove('active', 'dimmed');
+    });
+    document.querySelectorAll('.map-node-group').forEach(n => {
+      n.classList.remove('active', 'dimmed');
+    });
     const centerNode = document.getElementById('node-saugat');
     if (centerNode) centerNode.classList.add('active');
 
@@ -1184,6 +1286,10 @@ function initGpuExperience() {
       btn.classList.toggle('active', i === idx);
       btn.setAttribute('aria-selected', String(i === idx));
     });
+
+    panel.classList.remove('panel-reveal');
+    void panel.offsetWidth; // trigger reflow for smooth step transition
+    panel.classList.add('panel-reveal');
 
     panel.innerHTML = `
       <span class="rocm-detail-badge">CURRICULUM MODULE ${step.step} / 05</span>
@@ -1322,28 +1428,48 @@ function initTerminal() {
   }
 
   const COMMANDS = {
-    help: () => `Available commands:
-  about         - About Saugat Rauniyar
-  whoami        - System persona summary
-  skills        - Full technology breakdown
-  projects      - List flagship engineering projects
-  certifications- Verified credential collection (AMD ROCm, NVIDIA, etc.)
+    help: () => `<span style="color:var(--acc)">SAUGAT.OS COMMAND DIRECTORY:</span>
+
+<strong style="color:var(--ink)">PROFILE:</strong>
+  whoami        - System persona & academic standing
+  about         - Background & engineering focus
+  skills        - Core languages, frameworks & platforms
+  interests     - Off-duty interests & personal hobbies
+
+<strong style="color:var(--ink)">ENGINEERING:</strong>
+  projects      - Flagship systems (IMPOSTR, LUCERNA, DORMEX)
   signal        - Engineering Signal Map breakdown
-  gpu           - ROCm & GPU computing curriculum overview
-  achievements  - SecLeaf CTF 2nd Place & HackaFest 3rd Place
+  gpu           - AMD ROCm & GPU computing curriculum walkthrough
   impostr       - Inspect IMPOSTR threat analysis platform
   lucerna       - Inspect LUCERNA human-in-the-loop workstation
-  dormex        - Inspect DORMEX hostel allocation system
-  clients       - Real client websites (Capital Marketing & ShubhLabh)
-  writing       - Technical Medium article on web threat engine
-  resume        - Download or open verified PDF resume
-  education     - SIT & academic background
+  dormex        - Inspect DORMEX hostel allocation engine
+  clients       - Real commercial production sites
+
+<strong style="color:var(--ink)">RECOGNITION:</strong>
+  achievements  - SecLeaf CTF 2nd Place & HackaFest 3rd Place
+  certifications- Verified credential collection (10 milestones)
+  writing       - Technical Medium article on web forensics
+
+<strong style="color:var(--ink)">CONNECT & SYSTEM:</strong>
   contact       - Direct email and phone
-  social        - GitHub, LinkedIn, Medium profiles
+  social        - GitHub, LinkedIn & Medium profiles
+  resume        - Download or open verified PDF resume
   neofetch      - System summary info
   clear         - Clear terminal console
   gui           - Exit terminal and return to page
-  open &lt;id&gt;    - Jump directly to section (e.g. open rocm, open impostr)`,
+  open &lt;id&gt;    - Jump to section (e.g. "open rocm", "open impostr")
+
+<span style="color:var(--mute)">Type "help all" to display the full unformatted command dictionary.</span>`,
+
+    "help all": () => `FULL COMMAND DIRECTORY:
+  about, whoami, skills, interests, projects, certifications, signal, gpu,
+  achievements, impostr, lucerna, dormex, clients, writing, resume,
+  education, contact, social, neofetch, clear, gui, open <id>`,
+
+    interests: () => `<span style="color:var(--bronze)">OFF-DUTY INTERESTS:</span>
+  ✦ Singing & Jamming (Vocal & acoustic sessions)
+  ✦ Badminton & Cricket (Campus sports)
+  ✦ Systems Exploration (GPU computing, Linux kernels, CTF labs)`,
 
     about: () => `Saugat Rauniyar — Computer Science undergraduate at Siddaganga Institute of Technology
 building intelligent software, cybersecurity forensics engines, and high-performance systems across

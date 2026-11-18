@@ -181,7 +181,7 @@
     <!-- Metrics Bar -->
     <div class="metrics-bar" data-r aria-label="Proof of work key metrics">
       <div class="metric-item">
-        <strong style="color:var(--bronze)"><span class="metric-count" data-count="3">3</span>RD</strong>
+        <strong style="color:var(--bronze)"><span class="metric-count" data-count="3">3</span><sup>RD</sup></strong>
         <span>Place · HackaFest 2026</span>
       </div>
       <div class="metric-item">
@@ -193,8 +193,8 @@
         <span>Certificates &amp; Learning Milestones</span>
       </div>
       <div class="metric-item">
-        <strong>AI+SEC</strong>
-        <span>Core Product Focus</span>
+        <strong class="metric-focus-pill">AI+SEC</strong>
+        <span>Core Engineering Focus</span>
       </div>
     </div>
 
@@ -233,11 +233,10 @@
 
             <div class="project-meta-block">
               <div class="tech-tags">
-                <span class="badge-tech">Python</span>
-                <span class="badge-tech">FastAPI</span>
-                <span class="badge-tech">React</span>
+                <span class="badge-tech">Python / FastAPI</span>
                 <span class="badge-tech">DNS / WHOIS / SSL</span>
-                <span class="badge-tech">OpenPhish</span>
+                <span class="badge-tech">Threat OSINT</span>
+                <span class="badge-tech-more" title="React, OpenPhish, crt.sh, Shannon Entropy, Lexical Parser">+3 more</span>
               </div>
 
               <div class="project-contribution">
@@ -279,10 +278,10 @@
 
             <div class="project-meta-block">
               <div class="tech-tags">
-                <span class="badge-tech">Python</span>
+                <span class="badge-tech">Python / PyTorch</span>
                 <span class="badge-tech">Computer Vision</span>
-                <span class="badge-tech">PyTorch / ONNX</span>
-                <span class="badge-tech">WebGL Canvas</span>
+                <span class="badge-tech">ONNX Runtime</span>
+                <span class="badge-tech-more" title="TypeScript, Canvas / WebGL Viewport, DICOM Triage">+2 more</span>
               </div>
 
               <div class="project-contribution">
@@ -318,11 +317,10 @@
 
             <div class="project-meta-block">
               <div class="tech-tags">
-                <span class="badge-tech">JavaScript</span>
-                <span class="badge-tech">Node.js</span>
-                <span class="badge-tech">Express</span>
+                <span class="badge-tech">Node.js / Express</span>
                 <span class="badge-tech">PostgreSQL</span>
-                <span class="badge-tech">Tailwind CSS</span>
+                <span class="badge-tech">ACID Concurrency</span>
+                <span class="badge-tech-more" title="Tailwind CSS, Partial Unique Indexes, pg-mem Test Harness">+2 more</span>
               </div>
 
               <div class="project-contribution">
@@ -815,6 +813,15 @@
 
           <div class="cert-cards-grid" id="certCardsContainer">
             <!-- Dynamically populated from data.js with proof-backed links and tokens -->
+          </div>
+
+          <!-- Curated Pagination / View All 10 Control -->
+          <div class="cert-view-more-wrap" id="certViewMoreWrap">
+            <button type="button" class="btn outline-acc cert-toggle-btn" id="certToggleViewBtn" aria-expanded="false" aria-controls="certCardsContainer">
+              <span class="cert-toggle-text">View All 10 Credentials</span>
+              <span class="cert-toggle-count mono">(+4 More Archive Entries)</span>
+              <span class="cert-toggle-icon" aria-hidden="true">↓</span>
+            </button>
           </div>
         </div>
 
